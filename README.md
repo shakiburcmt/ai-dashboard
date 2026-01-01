@@ -1,4 +1,4 @@
-# 🛍️ shopSmart.ai | 🌐 Live Demo: https://ai-dashboard-kappa-seven.vercel.app/
+# 🛍️ shopSmart.ai | 🌐 Live Site: https://ai-dashboard-kappa-seven.vercel.app/
 
 **AI-Powered Retail Management Dashboard**  
 Smart • Fast • Insight-Driven

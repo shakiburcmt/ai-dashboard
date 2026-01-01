@@ -42,7 +42,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -603,7 +603,7 @@ const Card = ({ children, className = "", noPadding = false, isDark }) => (
   <div
     className={`rounded-2xl transition-all duration-300 ${
       isDark ? THEMES.GLASS_DARK : THEMES.GLASS_LIGHT
-    } ${noPadding ? "" : "p-6"} ${className}`}
+    } ${noPadding ? "" : "p-4 sm:p-6"} ${className}`}
   >
     {children}
   </div>
@@ -621,8 +621,8 @@ const Button = ({
 }) => {
   const sizeStyles = {
     sm: "px-3 py-1.5 text-xs",
-    md: "px-4 py-2.5 text-sm",
-    lg: "px-6 py-3 text-base",
+    md: "px-3 sm:px-4 py-2 text-sm",
+    lg: "px-4 sm:px-6 py-3 text-base",
   };
 
   const variants = {
@@ -648,7 +648,7 @@ const Button = ({
       className={`flex items-center justify-center gap-2 rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${sizeStyles[size]} ${variants[variant]} ${className}`}
     >
       {Icon && <Icon size={size === "sm" ? 14 : 18} />}
-      {children}
+      <span className="truncate">{children}</span>
     </button>
   );
 };
@@ -666,7 +666,7 @@ const Badge = ({ children, variant = "default" }) => {
   };
   return (
     <span
-      className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
+      className={`px-2 py-1 rounded-lg text-xs font-bold border truncate ${
         styles[variant] || styles.default
       }`}
     >
@@ -679,7 +679,7 @@ const Input = ({ label, icon: Icon, isDark, ...props }) => (
   <div className="flex flex-col gap-1.5 w-full">
     {label && (
       <label
-        className={`text-xs font-bold uppercase tracking-wider ${
+        className={`text-xs font-bold uppercase tracking-wider truncate ${
           isDark ? "text-slate-400" : "text-slate-500"
         }`}
       >
@@ -699,8 +699,8 @@ const Input = ({ label, icon: Icon, isDark, ...props }) => (
       )}
       <input
         className={`w-full ${
-          Icon ? "pl-10" : "pl-4"
-        } pr-4 py-2.5 rounded-xl border-2 outline-none transition-all 
+          Icon ? "pl-10" : "pl-3 sm:pl-4"
+        } pr-3 sm:pr-4 py-2.5 rounded-xl border-2 outline-none transition-all text-sm sm:text-base 
           ${
             isDark
               ? "bg-slate-800/50 border-slate-700 text-white focus:border-blue-500 focus:bg-slate-800 placeholder-slate-500"
@@ -717,6 +717,7 @@ export default function ShopSmartUltimate() {
   const [darkMode, setDarkMode] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard");
   const [salesTimeframe, setSalesTimeframe] = useState("7days");
+  const [isMobile, setIsMobile] = useState(false);
 
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
@@ -770,6 +771,21 @@ export default function ShopSmartUltimate() {
   const [aiTyping, setAiTyping] = useState(false);
   const [showFullReport, setShowFullReport] = useState(false);
   const [aiCommandContext, setAiCommandContext] = useState(null);
+
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Auto-close sidebar on mobile when changing views
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [currentView, isMobile]);
 
   const logAction = (action, details) => {
     const newLog = {
@@ -1067,51 +1083,51 @@ export default function ShopSmartUltimate() {
 
   const LoginView = () => (
     <div
-      className={`min-h-screen flex items-center justify-center relative overflow-hidden ${
+      className={`min-h-screen flex items-center justify-center relative overflow-hidden p-4 ${
         darkMode ? "bg-slate-900" : "bg-slate-100"
       }`}
     >
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 animate-pulse delay-1000"></div>
+      <div className="absolute top-0 left-0 w-48 sm:w-64 h-48 sm:h-64 bg-blue-500/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-purple-500/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 animate-pulse delay-1000"></div>
 
       <Card
-        className="w-full max-w-md relative z-10 border-t-4 border-t-blue-500"
+        className="w-full max-w-sm sm:max-w-md relative z-10 border-t-4 border-t-blue-500"
         isDark={darkMode}
       >
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-blue-500/40">
-            <ShoppingBag size={32} />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-3 sm:mb-4 shadow-lg shadow-blue-500/40">
+            <ShoppingBag size={isMobile ? 24 : 32} />
           </div>
           <h1
-            className={`text-3xl font-extrabold mb-2 ${
+            className={`text-2xl sm:text-3xl font-extrabold mb-1 sm:mb-2 ${
               darkMode ? "text-white" : "text-slate-900"
             }`}
           >
             ShopSmart<span className="text-blue-600">.ai</span>
           </h1>
-          <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+          <p className={`text-sm sm:text-base ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
             Next-Gen Retail Management OS
           </p>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 text-center mb-4">
+        <div className="space-y-3 sm:space-y-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 text-center mb-3 sm:mb-4">
             Select Persona
           </p>
           {INITIAL_USERS.map((u) => (
             <button
               key={u.id}
               onClick={() => handleLogin(u)}
-              className={`w-full group flex items-center justify-between p-4 rounded-xl border transition-all duration-200
+              className={`w-full group flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all duration-200
                 ${
                   darkMode
                     ? "bg-slate-800/50 border-slate-700 hover:border-blue-500 hover:bg-slate-800"
                     : "bg-white border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-md"
                 }`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-sm
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-sm
                   ${
                     u.role === "admin"
                       ? "bg-gradient-to-r from-blue-600 to-indigo-500 text-white"
@@ -1124,7 +1140,7 @@ export default function ShopSmartUltimate() {
                 </div>
                 <div className="text-left">
                   <div
-                    className={`font-bold ${
+                    className={`font-bold text-sm sm:text-base ${
                       darkMode ? "text-white" : "text-slate-800"
                     }`}
                   >
@@ -1136,9 +1152,10 @@ export default function ShopSmartUltimate() {
                 </div>
               </div>
               <ChevronRight
-                className={`transition-transform group-hover:translate-x-1 ${
+                className={`transition-transform group-hover:translate-x-1 flex-shrink-0 ${
                   darkMode ? "text-slate-600" : "text-slate-300"
                 }`}
+                size={isMobile ? 16 : 20}
               />
             </button>
           ))}
@@ -1147,12 +1164,12 @@ export default function ShopSmartUltimate() {
 
       <button
         onClick={() => setDarkMode(!darkMode)}
-        className="absolute top-6 right-6 p-3 rounded-full bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 transition-all text-slate-500"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 rounded-full bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 transition-all text-slate-500"
       >
         {darkMode ? (
-          <Sun size={20} className="text-amber-400" />
+          <Sun size={isMobile ? 16 : 20} className="text-amber-400" />
         ) : (
-          <Moon size={20} className="text-slate-600" />
+          <Moon size={isMobile ? 16 : 20} className="text-slate-600" />
         )}
       </button>
     </div>
@@ -1280,38 +1297,43 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="flex h-full gap-6 p-6 overflow-hidden">
-        <div className="flex-1 flex flex-col gap-6 overflow-hidden">
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row h-full gap-4 sm:gap-6 p-3 sm:p-4 lg:p-6 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 sm:gap-6 overflow-hidden">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Input
                 isDark={darkMode}
                 icon={Search}
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1"
               />
-              <Button
-                variant="primary"
-                icon={History}
-                onClick={() => setShowHistory(true)}
-              >
-                History
-              </Button>
-              <Button
-                variant="warning"
-                icon={PauseCircle}
-                onClick={() => setShowHeldOrders(true)}
-              >
-                Held ({heldOrders.length})
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="primary"
+                  icon={History}
+                  onClick={() => setShowHistory(true)}
+                  className="flex-1"
+                >
+                  {isMobile ? "History" : "History"}
+                </Button>
+                <Button
+                  variant="warning"
+                  icon={PauseCircle}
+                  onClick={() => setShowHeldOrders(true)}
+                  className="flex-1"
+                >
+                  {isMobile ? `Held (${heldOrders.length})` : `Held (${heldOrders.length})`}
+                </Button>
+              </div>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0
                     ${
                       selectedCategory === cat
                         ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
@@ -1326,20 +1348,20 @@ export default function ShopSmartUltimate() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pr-2">
+          <div className="flex-1 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pr-1 sm:pr-2">
             {filteredProducts.map((p) => (
               <button
                 key={p.id}
                 onClick={() => addToCart(p)}
                 disabled={p.stock === 0}
-                className={`text-left p-4 rounded-2xl border transition-all relative overflow-hidden group
+                className={`text-left p-3 sm:p-4 rounded-2xl border transition-all relative overflow-hidden group min-h-[180px] sm:min-h-[200px]
                   ${
                     darkMode
                       ? "bg-slate-800 border-slate-700 hover:border-blue-500 hover:bg-slate-750"
                       : "bg-white border-slate-200 hover:border-blue-500 hover:shadow-lg hover:-translate-y-1"
                   } ${p.stock === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <div className="h-24 rounded-xl mb-3 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-700/50">
+                <div className="h-20 sm:h-24 rounded-xl mb-2 sm:mb-3 flex items-center justify-center overflow-hidden bg-slate-100 dark:bg-slate-700/50">
                   {p.image ? (
                     <img
                       src={p.image}
@@ -1347,7 +1369,7 @@ export default function ShopSmartUltimate() {
                       className="w-full h-full object-cover transition-transform group-hover:scale-110"
                     />
                   ) : (
-                    <div className="text-4xl">
+                    <div className="text-3xl sm:text-4xl">
                       {p.category === "Beverages"
                         ? "☕"
                         : p.category === "Electronics"
@@ -1361,18 +1383,19 @@ export default function ShopSmartUltimate() {
                   )}
                 </div>
                 <h3
-                  className={`font-bold text-sm truncate ${
+                  className={`font-bold text-xs sm:text-sm truncate ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
                   {p.name}
                 </h3>
                 <div className="flex justify-between items-end mt-2">
-                  <span className="text-lg font-extrabold text-blue-500">
+                  <span className="text-base sm:text-lg font-extrabold text-blue-500">
                     ${p.price.toFixed(2)}
                   </span>
                   <Badge
                     variant={p.stock < settings.lowStock ? "danger" : "default"}
+                    className="text-xs"
                   >
                     {p.stock} in stock
                   </Badge>
@@ -1385,29 +1408,29 @@ export default function ShopSmartUltimate() {
         <Card
           isDark={darkMode}
           noPadding
-          className="w-96 flex flex-col h-full shadow-2xl border-0 ring-1 ring-slate-900/5"
+          className="w-full lg:w-80 xl:w-96 flex flex-col h-[500px] lg:h-auto shadow-2xl border-0 ring-1 ring-slate-900/5 mt-4 lg:mt-0"
         >
           <div
-            className={`p-4 border-b ${
+            className={`p-3 sm:p-4 border-b ${
               darkMode ? "border-slate-700" : "border-slate-100"
             }`}
           >
             {activeCustomer ? (
-              <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold">
+              <div className="flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-2 sm:p-3 rounded-lg border border-blue-100 dark:border-blue-800">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm sm:text-base">
                     {activeCustomer.name.charAt(0)}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p
-                      className={`text-sm font-bold ${
+                      className={`text-xs sm:text-sm font-bold truncate ${
                         darkMode ? "text-blue-300" : "text-blue-800"
                       }`}
                     >
                       {activeCustomer.name}
                     </p>
-                    <div className="flex items-center gap-2">
-                      <Star size={12} className="text-amber-500" />
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <Star size={10} className="text-amber-500" />
                       <p className="text-xs text-blue-500">
                         {activeCustomer.points} pts • {activeCustomer.segment}
                       </p>
@@ -1416,7 +1439,7 @@ export default function ShopSmartUltimate() {
                 </div>
                 <button
                   onClick={() => setActiveCustomer(null)}
-                  className="text-blue-400 hover:text-blue-600"
+                  className="text-blue-400 hover:text-blue-600 flex-shrink-0"
                 >
                   <X size={16} />
                 </button>
@@ -1424,7 +1447,7 @@ export default function ShopSmartUltimate() {
             ) : (
               <div className="relative">
                 <select
-                  className={`w-full p-2.5 rounded-lg border appearance-none text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 
+                  className={`w-full p-2 sm:p-2.5 rounded-lg border appearance-none text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 
                     ${
                       darkMode
                         ? "bg-slate-800 border-slate-700 text-white"
@@ -1449,30 +1472,30 @@ export default function ShopSmartUltimate() {
                 </select>
                 <UserPlus
                   size={16}
-                  className="absolute right-3 top-3 text-slate-400 pointer-events-none"
+                  className="absolute right-3 top-2.5 sm:top-3 text-slate-400 pointer-events-none"
                 />
               </div>
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50">
-                <ShoppingCart size={48} className="mb-2" />
-                <p>Cart is empty</p>
+              <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-50 p-4">
+                <ShoppingCart size={32} className="mb-2" />
+                <p className="text-sm">Cart is empty</p>
                 <p className="text-xs mt-1">Add items to begin</p>
               </div>
             ) : (
               cart.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex justify-between items-center p-3 rounded-xl group ${
+                  className={`flex justify-between items-center p-2 sm:p-3 rounded-xl group ${
                     darkMode ? "bg-slate-800/50" : "bg-slate-50"
                   }`}
                 >
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div
-                      className={`font-semibold text-sm ${
+                      className={`font-semibold text-xs sm:text-sm truncate ${
                         darkMode ? "text-slate-200" : "text-slate-800"
                       }`}
                     >
@@ -1482,9 +1505,9 @@ export default function ShopSmartUltimate() {
                       ${item.price.toFixed(2)} x {item.qty}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <span
-                      className={`font-bold ${
+                      className={`font-bold text-sm sm:text-base ${
                         darkMode ? "text-slate-300" : "text-slate-700"
                       }`}
                     >
@@ -1494,7 +1517,7 @@ export default function ShopSmartUltimate() {
                       onClick={() =>
                         setCart(cart.filter((c) => c.id !== item.id))
                       }
-                      className="text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -1505,21 +1528,21 @@ export default function ShopSmartUltimate() {
           </div>
 
           <div
-            className={`p-5 ${
+            className={`p-3 sm:p-4 lg:p-5 ${
               darkMode ? "bg-slate-800" : "bg-white"
             } border-t ${darkMode ? "border-slate-700" : "border-slate-100"}`}
           >
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm text-slate-500">
+            <div className="space-y-2 mb-3 sm:mb-4">
+              <div className="flex justify-between text-xs sm:text-sm text-slate-500">
                 <span>Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-slate-500">
+              <div className="flex justify-between text-xs sm:text-sm text-slate-500">
                 <span>Tax ({settings.taxRate}%)</span>
                 <span>{formatCurrency(tax)}</span>
               </div>
               <div
-                className={`flex justify-between text-xl font-black ${
+                className={`flex justify-between text-lg sm:text-xl font-black ${
                   darkMode ? "text-white" : "text-slate-900"
                 }`}
               >
@@ -1527,7 +1550,7 @@ export default function ShopSmartUltimate() {
                 <span>{formatCurrency(total)}</span>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 sm:mb-4">
               {quickAmounts.map((amt) => (
                 <button
                   key={amt}
@@ -1546,12 +1569,14 @@ export default function ShopSmartUltimate() {
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <Button
                 variant="warning"
                 onClick={handleHoldOrder}
                 disabled={cart.length === 0}
                 icon={PauseCircle}
+                size={isMobile ? "sm" : "md"}
+                className="text-xs sm:text-sm"
               >
                 Hold Order
               </Button>
@@ -1560,6 +1585,8 @@ export default function ShopSmartUltimate() {
                 onClick={() => handleCheckout(total)}
                 disabled={cart.length === 0}
                 icon={DollarSign}
+                size={isMobile ? "sm" : "md"}
+                className="text-xs sm:text-sm"
               >
                 Pay Now
               </Button>
@@ -1568,44 +1595,44 @@ export default function ShopSmartUltimate() {
         </Card>
 
         {showHeldOrders && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
             <Card
               isDark={darkMode}
-              className="w-full max-w-2xl max-h-[80vh] flex flex-col"
+              className="w-full max-w-sm sm:max-w-md md:max-w-2xl max-h-[80vh] flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <h2
-                  className={`text-xl font-bold ${
+                  className={`text-lg sm:text-xl font-bold ${
                     darkMode ? "text-white" : "text-slate-900"
                   }`}
                 >
                   Held Orders
                 </h2>
                 <button onClick={() => setShowHeldOrders(false)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-3">
+              <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3">
                 {heldOrders.length === 0 ? (
-                  <p className="text-center text-slate-500 py-10">
+                  <p className="text-center text-slate-500 py-8 sm:py-10">
                     No held orders.
                   </p>
                 ) : (
                   heldOrders.map((order) => (
                     <div
                       key={order.id}
-                      className={`p-4 rounded-xl border flex justify-between items-center ${
+                      className={`p-3 sm:p-4 rounded-xl border flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 ${
                         darkMode
                           ? "border-slate-700 bg-slate-800"
                           : "border-slate-200 bg-slate-50"
                       }`}
                     >
-                      <div>
+                      <div className="flex-1">
                         <span className="font-mono text-xs bg-slate-200 dark:bg-slate-600 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">
                           {order.id}
                         </span>
                         <p
-                          className={`font-medium ${
+                          className={`font-medium text-sm sm:text-base ${
                             darkMode ? "text-slate-200" : "text-slate-800"
                           }`}
                         >
@@ -1613,8 +1640,8 @@ export default function ShopSmartUltimate() {
                           {order.items.length} items
                         </p>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="font-bold text-lg">
+                      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                        <span className="font-bold text-base sm:text-lg">
                           {formatCurrency(order.total)}
                         </span>
                         <Button
@@ -1622,8 +1649,9 @@ export default function ShopSmartUltimate() {
                           size="sm"
                           onClick={() => handleResumeOrder(order)}
                           icon={PlayCircle}
+                          className="whitespace-nowrap"
                         >
-                          Resume
+                          {isMobile ? "Resume" : "Resume"}
                         </Button>
                       </div>
                     </div>
@@ -1635,26 +1663,26 @@ export default function ShopSmartUltimate() {
         )}
 
         {showHistory && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
             <Card
               isDark={darkMode}
-              className="w-full max-w-4xl max-h-[80vh] flex flex-col"
+              className="w-full max-w-sm sm:max-w-lg md:max-w-4xl max-h-[80vh] flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <h2
-                  className={`text-xl font-bold ${
+                  className={`text-lg sm:text-xl font-bold ${
                     darkMode ? "text-white" : "text-slate-900"
                   }`}
                 >
                   Transaction History
                 </h2>
                 <button onClick={() => setShowHistory(false)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
                 <table
-                  className={`w-full text-left text-sm ${
+                  className={`w-full text-left text-xs sm:text-sm ${
                     darkMode ? "text-slate-300" : "text-slate-600"
                   }`}
                 >
@@ -1666,11 +1694,11 @@ export default function ShopSmartUltimate() {
                     }`}
                   >
                     <tr>
-                      <th className="p-3">ID</th>
-                      <th className="p-3">Date</th>
-                      <th className="p-3">Customer</th>
-                      <th className="p-3 text-right">Total</th>
-                      <th className="p-3">Cashier</th>
+                      <th className="p-2 sm:p-3">ID</th>
+                      <th className="p-2 sm:p-3 hidden sm:table-cell">Date</th>
+                      <th className="p-2 sm:p-3">Customer</th>
+                      <th className="p-2 sm:p-3 text-right">Total</th>
+                      <th className="p-2 sm:p-3 hidden md:table-cell">Cashier</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1681,17 +1709,21 @@ export default function ShopSmartUltimate() {
                           darkMode ? "border-slate-700" : "border-slate-100"
                         }`}
                       >
-                        <td className="p-3 font-mono text-xs">{o.id}</td>
-                        <td className="p-3">
-                          {new Date(o.date).toLocaleString()}
+                        <td className="p-2 sm:p-3 font-mono text-xs">
+                          {o.id}
                         </td>
-                        <td className="p-3">
+                        <td className="p-2 sm:p-3 hidden sm:table-cell">
+                          {new Date(o.date).toLocaleDateString()}
+                        </td>
+                        <td className="p-2 sm:p-3 truncate max-w-[100px]">
                           {o.customer ? o.customer.name : "Guest"}
                         </td>
-                        <td className="p-3 text-right font-bold">
+                        <td className="p-2 sm:p-3 text-right font-bold">
                           {formatCurrency(o.total)}
                         </td>
-                        <td className="p-3">{o.cashier}</td>
+                        <td className="p-2 sm:p-3 hidden md:table-cell">
+                          {o.cashier}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1775,22 +1807,22 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="p-8 space-y-8 overflow-y-auto h-full">
-        <div className="flex justify-between items-center">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 overflow-y-auto h-full">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <h2
-              className={`text-3xl font-bold ${
+              className={`text-2xl sm:text-3xl font-bold ${
                 darkMode ? "text-white" : "text-slate-900"
               }`}
             >
               Dashboard
             </h2>
-            <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+            <p className={`text-sm sm:text-base ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
               Real-time insights for {settings.storeName}
             </p>
           </div>
           <div
-            className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-2 ${
+            className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-2 w-fit ${
               darkMode
                 ? "bg-slate-800 border-slate-700 text-emerald-400"
                 : "bg-white border-slate-200 text-emerald-600"
@@ -1801,7 +1833,7 @@ export default function ShopSmartUltimate() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[
             {
               label: "Total Revenue",
@@ -1839,18 +1871,18 @@ export default function ShopSmartUltimate() {
             <Card
               key={i}
               isDark={darkMode}
-              className="flex items-center justify-between group hover:-translate-y-1 transition-transform"
+              className="flex items-center justify-between group hover:-translate-y-1 transition-transform p-4 sm:p-6"
             >
-              <div>
+              <div className="min-w-0">
                 <p
-                  className={`text-sm font-bold ${
+                  className={`text-xs sm:text-sm font-bold truncate ${
                     darkMode ? "text-slate-400" : "text-slate-500"
                   }`}
                 >
                   {stat.label}
                 </p>
                 <h3
-                  className={`text-2xl font-black mt-1 ${
+                  className={`text-xl sm:text-2xl font-black mt-1 truncate ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
@@ -1871,18 +1903,18 @@ export default function ShopSmartUltimate() {
                   {stat.trend}
                 </span>
               </div>
-              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
-                <stat.icon size={24} />
+              <div className={`p-2 sm:p-3 rounded-xl ${stat.bg} ${stat.color} flex-shrink-0 ml-3`}>
+                <stat.icon size={isMobile ? 20 : 24} />
               </div>
             </Card>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card isDark={darkMode} className="lg:col-span-2 min-h-[400px]">
-            <div className="flex justify-between items-center mb-6">
+          <Card isDark={darkMode} className="lg:col-span-2 min-h-[300px] sm:min-h-[400px]">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
               <h3
-                className={`font-bold text-lg ${
+                className={`font-bold text-base sm:text-lg ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
@@ -1891,7 +1923,7 @@ export default function ShopSmartUltimate() {
               <select
                 value={salesTimeframe}
                 onChange={(e) => setSalesTimeframe(e.target.value)}
-                className={`text-sm rounded-lg p-2 border ${
+                className={`text-sm rounded-lg p-2 border w-full sm:w-auto ${
                   darkMode
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-slate-50 border-slate-200"
@@ -1902,7 +1934,7 @@ export default function ShopSmartUltimate() {
                 <option value="12months">Last 12 Months</option>
               </select>
             </div>
-            <div className="h-80 w-full">
+            <div className="h-64 sm:h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={getSalesData()}>
                   <defs>
@@ -1920,12 +1952,12 @@ export default function ShopSmartUltimate() {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: darkMode ? "#94a3b8" : "#64748b" }}
+                    tick={{ fill: darkMode ? "#94a3b8" : "#64748b", fontSize: isMobile ? 10 : 12 }}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: darkMode ? "#94a3b8" : "#64748b" }}
+                    tick={{ fill: darkMode ? "#94a3b8" : "#64748b", fontSize: isMobile ? 10 : 12 }}
                   />
                   <Tooltip
                     contentStyle={{
@@ -1934,6 +1966,7 @@ export default function ShopSmartUltimate() {
                       boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
                       backgroundColor: darkMode ? "#1e293b" : "#fff",
                       color: darkMode ? "#fff" : "#000",
+                      fontSize: isMobile ? "12px" : "14px",
                     }}
                     formatter={(value) => [
                       formatCurrency(Number(value)),
@@ -1944,7 +1977,7 @@ export default function ShopSmartUltimate() {
                     type="monotone"
                     dataKey="sales"
                     stroke="#3b82f6"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorSales)"
                   />
@@ -1953,21 +1986,21 @@ export default function ShopSmartUltimate() {
             </div>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-none shadow-2xl relative overflow-hidden">
-            <div className="relative z-10 h-full flex flex-col justify-between">
+          <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-none shadow-2xl relative overflow-hidden min-h-[300px]">
+            <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6">
               <div>
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center gap-2 mb-4 sm:mb-6">
                   <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                    <Sparkles size={20} className="text-yellow-300" />
+                    <Sparkles size={isMobile ? 16 : 20} className="text-yellow-300" />
                   </div>
-                  <h3 className="font-bold text-lg">AI Forecasting</h3>
+                  <h3 className="font-bold text-base sm:text-lg">AI Forecasting</h3>
                 </div>
-                <div className="space-y-4">
-                  <div className="bg-black/20 p-4 rounded-xl backdrop-blur-md border border-white/10">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-black/20 p-3 sm:p-4 rounded-xl backdrop-blur-md border border-white/10">
                     <p className="text-xs text-blue-200 font-bold uppercase mb-1">
                       Prediction
                     </p>
-                    <p className="font-medium">
+                    <p className="font-medium text-sm sm:text-base">
                       Demand for{" "}
                       <span className="text-yellow-300 font-bold">
                         Electronics
@@ -1975,32 +2008,33 @@ export default function ShopSmartUltimate() {
                       will spike +18% this weekend.
                     </p>
                   </div>
-                  <div className="bg-black/20 p-4 rounded-xl backdrop-blur-md border border-white/10">
+                  <div className="bg-black/20 p-3 sm:p-4 rounded-xl backdrop-blur-md border border-white/10">
                     <p className="text-xs text-blue-200 font-bold uppercase mb-1">
                       Restock Alert
                     </p>
-                    <p className="font-medium">
+                    <p className="font-medium text-sm sm:text-base">
                       Order <span className="font-bold">25 units</span> of
                       Organic Coffee Beans now.
                     </p>
                   </div>
-                  <div className="bg-black/20 p-4 rounded-xl backdrop-blur-md border border-white/10">
+                  <div className="bg-black/20 p-3 sm:p-4 rounded-xl backdrop-blur-md border border-white/10">
                     <p className="text-xs text-blue-200 font-bold uppercase mb-1">
                       Customer Insight
                     </p>
-                    <p className="font-medium">
+                    <p className="font-medium text-sm sm:text-base">
                       VIP customers generate{" "}
                       <span className="font-bold">65%</span> of total revenue.
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2 mt-6">
+              <div className="flex gap-2 mt-4 sm:mt-6">
                 <Button
-                  className="flex-1 bg-white text-blue-600 hover:bg-blue-50 shadow-none border-none"
+                  className="flex-1 bg-white text-blue-600 hover:bg-blue-50 shadow-none border-none text-xs sm:text-sm"
                   onClick={handleViewFullReport}
                   disabled={loadingForecast}
                   icon={loadingForecast ? RefreshCw : FileText}
+                  size={isMobile ? "sm" : "md"}
                 >
                   {loadingForecast ? "Loading..." : "View Full AI Report"}
                 </Button>
@@ -2009,23 +2043,24 @@ export default function ShopSmartUltimate() {
                   className="bg-white/20 hover:bg-white/30 border-white/30"
                   onClick={handleDownloadReport}
                   icon={Download}
+                  size={isMobile ? "sm" : "md"}
                 />
               </div>
             </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500 rounded-full blur-3xl opacity-50"></div>
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 sm:w-40 sm:h-40 bg-indigo-500 rounded-full blur-3xl opacity-50"></div>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card isDark={darkMode}>
+          <Card isDark={darkMode} className="min-h-[300px]">
             <h3
-              className={`font-bold text-lg mb-4 ${
+              className={`font-bold text-base sm:text-lg mb-3 sm:mb-4 ${
                 darkMode ? "text-white" : "text-slate-800"
               }`}
             >
               Category Distribution
             </h3>
-            <div className="h-64">
+            <div className="h-56 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -2040,7 +2075,7 @@ export default function ShopSmartUltimate() {
                           : 0;
                       return `${name}: ${safePercent.toFixed(0)}%`;
                     }}
-                    outerRadius={80}
+                    outerRadius={isMobile ? 60 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     nameKey="name"
@@ -2058,12 +2093,12 @@ export default function ShopSmartUltimate() {
             </div>
           </Card>
 
-          <Card isDark={darkMode}>
-            <h3 className="font-semibold text-lg mb-4 text-blue-600 dark:text-blue-400">
+          <Card isDark={darkMode} className="min-h-[300px]">
+            <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 text-blue-600 dark:text-blue-400">
               Top Performing Products
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {products
                 .sort((a, b) => b.salesLast7Days - a.salesLast7Days)
                 .slice(0, 5)
@@ -2071,33 +2106,31 @@ export default function ShopSmartUltimate() {
                   <div
                     key={product.id}
                     className="
-            flex items-center justify-between
-            px-4 py-3 rounded-xl
-            bg-white dark:bg-slate-900
-            border border-slate-200 dark:border-slate-700
-
-            shadow-[0_10px_30px_rgba(0,0,0,0.08)]
-            animate-[softFloat_5s_ease-in-out_infinite]
-          "
+                      flex items-center justify-between
+                      px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl
+                      bg-white dark:bg-slate-900
+                      border border-slate-200 dark:border-slate-700
+                      shadow-[0_10px_30px_rgba(0,0,0,0.08)]
+                      animate-[softFloat_5s_ease-in-out_infinite]
+                    "
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-600 dark:bg-blue-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
                         #{index + 1}
                       </div>
 
                       <div className="min-w-0">
-                        <p className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
+                        <p className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100 truncate">
                           {product.name}
                         </p>
                         <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                          {product.category} • {product.salesLast7Days} sold
-                          (7d)
+                          {product.category} • {product.salesLast7Days} sold (7d)
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <p className="font-semibold text-sm text-blue-600 dark:text-blue-400">
+                      <p className="font-semibold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
                         {formatCurrency(
                           product.price * product.salesLast7Days,
                           settings.currency
@@ -2114,21 +2147,21 @@ export default function ShopSmartUltimate() {
         </div>
 
         {showFullReport && forecast && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
             <Card
               isDark={darkMode}
-              className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+              className="w-full max-w-sm sm:max-w-lg md:max-w-4xl max-h-[80vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6 p-6 pb-0">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 p-4 sm:p-6 sm:pb-0">
                 <div>
                   <h2
-                    className={`text-2xl font-bold ${
+                    className={`text-lg sm:text-xl md:text-2xl font-bold ${
                       darkMode ? "text-white" : "text-slate-900"
                     }`}
                   >
                     AI Sales Forecast Report
                   </h2>
-                  <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+                  <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
                     {salesTimeframe === "7days"
                       ? "7-Day"
                       : salesTimeframe === "30days"
@@ -2137,43 +2170,45 @@ export default function ShopSmartUltimate() {
                     Analysis
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-3 sm:mt-0">
                   <Button
                     variant="primary"
                     onClick={handleDownloadReport}
                     icon={Download}
+                    size="sm"
+                    className="flex-1 sm:flex-none"
                   >
-                    Download
+                    {isMobile ? "Download" : "Download"}
                   </Button>
                   <button
                     onClick={() => setShowFullReport(false)}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg flex-shrink-0"
                   >
-                    <X className="text-slate-400" />
+                    <X className="text-slate-400" size={20} />
                   </button>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <div
-                    className={`p-4 rounded-xl border ${
+                    className={`p-3 sm:p-4 rounded-xl border ${
                       darkMode
                         ? "border-slate-700 bg-slate-800/50"
                         : "border-slate-200 bg-slate-50"
                     }`}
                   >
-                    <p className="text-sm text-slate-500 mb-1">Prediction</p>
-                    <p className="font-bold text-lg">{forecast.prediction}</p>
+                    <p className="text-xs text-slate-500 mb-1">Prediction</p>
+                    <p className="font-bold text-sm sm:text-base">{forecast.prediction}</p>
                   </div>
                   <div
-                    className={`p-4 rounded-xl border ${
+                    className={`p-3 sm:p-4 rounded-xl border ${
                       darkMode
                         ? "border-slate-700 bg-slate-800/50"
                         : "border-slate-200 bg-slate-50"
                     }`}
                   >
-                    <p className="text-sm text-slate-500 mb-1">Confidence</p>
+                    <p className="text-xs text-slate-500 mb-1">Confidence</p>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                         <div
@@ -2181,18 +2216,18 @@ export default function ShopSmartUltimate() {
                           style={{ width: `${forecast.confidence}%` }}
                         ></div>
                       </div>
-                      <span className="font-bold">{forecast.confidence}%</span>
+                      <span className="font-bold text-sm sm:text-base">{forecast.confidence}%</span>
                     </div>
                   </div>
                   <div
-                    className={`p-4 rounded-xl border ${
+                    className={`p-3 sm:p-4 rounded-xl border ${
                       darkMode
                         ? "border-slate-700 bg-slate-800/50"
                         : "border-slate-200 bg-slate-50"
                     }`}
                   >
-                    <p className="text-sm text-slate-500 mb-1">Timeframe</p>
-                    <p className="font-bold">
+                    <p className="text-xs text-slate-500 mb-1">Timeframe</p>
+                    <p className="font-bold text-sm sm:text-base">
                       {salesTimeframe === "7days"
                         ? "7 Days"
                         : salesTimeframe === "30days"
@@ -2204,7 +2239,7 @@ export default function ShopSmartUltimate() {
 
                 <div>
                   <h3
-                    className={`font-bold mb-3 ${
+                    className={`font-bold mb-2 sm:mb-3 text-sm sm:text-base ${
                       darkMode ? "text-white" : "text-slate-800"
                     }`}
                   >
@@ -2221,46 +2256,46 @@ export default function ShopSmartUltimate() {
 
                 <div>
                   <h3
-                    className={`font-bold mb-3 ${
+                    className={`font-bold mb-2 sm:mb-3 text-sm sm:text-base ${
                       darkMode ? "text-white" : "text-slate-800"
                     }`}
                   >
                     AI Recommendations
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {forecast.recommendations.map((rec, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-start gap-3 p-3 rounded-lg ${
+                        className={`flex items-start gap-2 sm:gap-3 p-3 rounded-lg ${
                           darkMode ? "bg-slate-800/50" : "bg-slate-50"
                         }`}
                       >
-                        <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                           <Sparkles
-                            size={12}
+                            size={10}
                             className="text-blue-600 dark:text-blue-400"
                           />
                         </div>
-                        <p>{rec}</p>
+                        <p className="text-sm sm:text-base">{rec}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div
-                  className={`p-4 rounded-xl border ${
+                  className={`p-3 sm:p-4 rounded-xl border ${
                     darkMode
                       ? "border-blue-500/30 bg-blue-900/10"
                       : "border-blue-200 bg-blue-50"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <BrainCircuit className="text-blue-500" />
-                    <p className="font-bold text-blue-600 dark:text-blue-400">
+                    <BrainCircuit className="text-blue-500" size={isMobile ? 16 : 20} />
+                    <p className="font-bold text-sm sm:text-base text-blue-600 dark:text-blue-400">
                       AI Insight
                     </p>
                   </div>
-                  <p className="text-sm">
+                  <p className="text-xs sm:text-sm">
                     Based on historical data and current trends, implementing
                     these recommendations could increase revenue by 15-22% in
                     the selected timeframe.
@@ -2268,10 +2303,11 @@ export default function ShopSmartUltimate() {
                 </div>
               </div>
 
-              <div className="p-6 pt-0 flex justify-end">
+              <div className="p-4 sm:p-6 pt-0 flex justify-end">
                 <Button
                   variant="primary"
                   onClick={() => setShowFullReport(false)}
+                  size={isMobile ? "sm" : "md"}
                 >
                   Close Report
                 </Button>
@@ -2357,22 +2393,22 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="p-8 h-full overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
           <h2
-            className={`text-2xl font-bold ${
+            className={`text-xl sm:text-2xl font-bold ${
               darkMode ? "text-white" : "text-slate-900"
             }`}
           >
             Product Management
           </h2>
-          <div className="flex gap-3 items-center">
-            <div className="hidden md:flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
               <input
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 placeholder="Search by name or SKU..."
-                className={`px-3 py-2 rounded-lg text-xs border outline-none ${
+                className={`px-3 py-2 rounded-lg text-xs border outline-none w-full sm:w-48 ${
                   darkMode
                     ? "bg-slate-900 border-slate-700 text-white"
                     : "bg-white border-slate-200 text-slate-700"
@@ -2381,7 +2417,7 @@ export default function ShopSmartUltimate() {
               <select
                 value={productCategoryFilter}
                 onChange={(e) => setProductCategoryFilter(e.target.value)}
-                className={`px-3 py-2 rounded-lg text-xs border outline-none ${
+                className={`px-3 py-2 rounded-lg text-xs border outline-none w-full sm:w-48 ${
                   darkMode
                     ? "bg-slate-900 border-slate-700 text-white"
                     : "bg-white border-slate-200 text-slate-700"
@@ -2402,160 +2438,165 @@ export default function ShopSmartUltimate() {
                 setEditForm({});
               }}
               icon={Plus}
+              className="w-full sm:w-auto"
             >
               Add Product
             </Button>
           </div>
         </div>
 
-        <Card isDark={darkMode} noPadding>
-          <table
-            className={`w-full text-sm text-left ${
-              darkMode ? "text-slate-300" : "text-slate-600"
-            }`}
-          >
-            <thead
-              className={`font-bold uppercase text-xs ${
-                darkMode
-                  ? "bg-slate-800 text-slate-400"
-                  : "bg-slate-50 text-slate-500"
+        <Card isDark={darkMode} noPadding className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table
+              className={`w-full text-sm text-left ${
+                darkMode ? "text-slate-300" : "text-slate-600"
               }`}
             >
-              <tr>
-                <th className="px-6 py-4">Product</th>
-                <th className="px-6 py-4">Price</th>
-                <th className="px-6 py-4">Stock</th>
-                <th className="px-6 py-4">Margin</th>
-                <th className="px-6 py-4">Sales (7d)</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody
-              className={`divide-y ${
-                darkMode ? "divide-slate-700" : "divide-slate-100"
-              }`}
-            >
-              {filteredProducts.map((p) => (
-                <tr
-                  key={p.id}
-                  className={`${
-                    darkMode ? "hover:bg-slate-800" : "hover:bg-slate-50"
-                  }`}
-                >
-                  <td className="px-6 py-4">
-                    <div>
+              <thead
+                className={`font-bold uppercase text-xs ${
+                  darkMode
+                    ? "bg-slate-800 text-slate-400"
+                    : "bg-slate-50 text-slate-500"
+                }`}
+              >
+                <tr>
+                  <th className="px-4 py-3">Product</th>
+                  <th className="px-4 py-3">Price</th>
+                  <th className="px-4 py-3 hidden sm:table-cell">Stock</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Margin</th>
+                  <th className="px-4 py-3 hidden lg:table-cell">Sales (7d)</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody
+                className={`divide-y ${
+                  darkMode ? "divide-slate-700" : "divide-slate-100"
+                }`}
+              >
+                {filteredProducts.map((p) => (
+                  <tr
+                    key={p.id}
+                    className={`${
+                      darkMode ? "hover:bg-slate-800" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="min-w-0">
+                        <div
+                          className={`font-bold text-sm truncate ${
+                            darkMode ? "text-white" : "text-slate-800"
+                          }`}
+                        >
+                          {p.name}
+                        </div>
+                        <div className="text-xs text-slate-500 truncate">
+                          {p.sku} • {p.category}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-bold">${p.price.toFixed(2)}</div>
+                      <div className="text-xs text-slate-500 hidden sm:block">
+                        Cost: ${p.cost?.toFixed(2) || (p.price * 0.7).toFixed(2)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <Badge
+                        variant={
+                          p.stock < settings.lowStock
+                            ? "danger"
+                            : p.stock < (p.reorderPoint || 15)
+                            ? "warning"
+                            : "success"
+                        }
+                      >
+                        {p.stock} units
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <div
                         className={`font-bold ${
-                          darkMode ? "text-white" : "text-slate-800"
+                          (p.profitMargin ||
+                            ((p.price - (p.cost || p.price * 0.7)) / p.price) *
+                              100) > 30
+                            ? "text-emerald-600"
+                            : "text-amber-600"
                         }`}
                       >
-                        {p.name}
+                        {p.profitMargin?.toFixed(1) ||
+                          (
+                            ((p.price - (p.cost || p.price * 0.7)) / p.price) *
+                            100
+                          ).toFixed(1)}
+                        %
                       </div>
-                      <div className="text-xs text-slate-500">
-                        {p.sku} • {p.category}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp size={12} className="text-emerald-500" />
+                        <span>{p.salesLast7Days}</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-bold">${p.price.toFixed(2)}</div>
-                    <div className="text-xs text-slate-500">
-                      Cost: ${p.cost?.toFixed(2) || (p.price * 0.7).toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge
-                      variant={
-                        p.stock < settings.lowStock
-                          ? "danger"
-                          : p.stock < (p.reorderPoint || 15)
-                          ? "warning"
-                          : "success"
-                      }
-                    >
-                      {p.stock} units
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div
-                      className={`font-bold ${
-                        (p.profitMargin ||
-                          ((p.price - (p.cost || p.price * 0.7)) / p.price) *
-                            100) > 30
-                          ? "text-emerald-600"
-                          : "text-amber-600"
-                      }`}
-                    >
-                      {p.profitMargin?.toFixed(1) ||
-                        (
-                          ((p.price - (p.cost || p.price * 0.7)) / p.price) *
-                          100
-                        ).toFixed(1)}
-                      %
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp size={12} className="text-emerald-500" />
-                      <span>{p.salesLast7Days}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right gap-2 flex justify-end">
-                    <button
-                      onClick={() => handleOptimizePrice(p)}
-                      className="text-purple-500 hover:text-purple-700 px-2"
-                      title="AI Price Optimization"
-                    >
-                      <Zap size={16} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditForm(p);
-                        setIsEditing(true);
-                      }}
-                      className="text-blue-500 hover:text-blue-700 px-2"
-                    >
-                      <Edit3 size={16} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`Delete ${p.name}?`)) {
-                          setProducts((prev) =>
-                            prev.filter((x) => x.id !== p.id)
-                          );
-                          logAction("PRODUCT_DELETE", `Deleted ${p.name}`);
-                        }
-                      }}
-                      className="text-rose-500 hover:text-rose-700 px-2"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1 sm:gap-2">
+                        <button
+                          onClick={() => handleOptimizePrice(p)}
+                          className="text-purple-500 hover:text-purple-700 p-1"
+                          title="AI Price Optimization"
+                        >
+                          <Zap size={16} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditForm(p);
+                            setIsEditing(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700 p-1"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete ${p.name}?`)) {
+                              setProducts((prev) =>
+                                prev.filter((x) => x.id !== p.id)
+                              );
+                              logAction("PRODUCT_DELETE", `Deleted ${p.name}`);
+                            }
+                          }}
+                          className="text-rose-500 hover:text-rose-700 p-1"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         {isEditing && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
             <Card
               isDark={darkMode}
-              className="w-full max-w-xl animate-in fade-in zoom-in duration-200"
+              className="w-full max-w-sm sm:max-w-md md:max-w-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <h3
-                  className={`text-lg font-bold ${
+                  className={`text-base sm:text-lg font-bold ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
                   {editForm.id ? "Edit Product" : "Add New Product"}
                 </h3>
                 <button onClick={() => setIsEditing(false)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Input
                     isDark={darkMode}
                     label="Product Name"
@@ -2575,7 +2616,7 @@ export default function ShopSmartUltimate() {
                     placeholder="GEN-001"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Input
                     isDark={darkMode}
                     label="Price ($)"
@@ -2598,7 +2639,7 @@ export default function ShopSmartUltimate() {
                     placeholder="Cost price"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Input
                     isDark={darkMode}
                     label="Initial Stock"
@@ -2618,7 +2659,7 @@ export default function ShopSmartUltimate() {
                     </label>
                     <div className="flex gap-2">
                       <input
-                        className={`flex-1 px-4 py-2.5 rounded-xl border-2 outline-none transition-all ${
+                        className={`flex-1 px-3 sm:px-4 py-2.5 rounded-xl border-2 outline-none transition-all text-sm ${
                           darkMode
                             ? "bg-slate-800/50 border-slate-700 text-white focus:border-blue-500"
                             : "bg-white/50 border-slate-200 text-slate-800 focus:border-blue-500"
@@ -2632,7 +2673,8 @@ export default function ShopSmartUltimate() {
                         variant="primary"
                         onClick={handlePredictCategory}
                         disabled={predictingCat || !editForm.name}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap text-xs sm:text-sm"
+                        size="sm"
                       >
                         {predictingCat ? (
                           <RefreshCw size={14} className="animate-spin" />
@@ -2676,7 +2718,7 @@ export default function ShopSmartUltimate() {
                     </button>
                   </div>
                   <textarea
-                    className={`w-full px-4 py-2.5 rounded-xl border-2 outline-none transition-all h-24 resize-none ${
+                    className={`w-full px-3 sm:px-4 py-2.5 rounded-xl border-2 outline-none transition-all h-24 resize-none text-sm ${
                       darkMode
                         ? "bg-slate-800/50 border-slate-700 text-white focus:border-blue-500"
                         : "bg-white/50 border-slate-200 text-slate-800 focus:border-blue-500"
@@ -2688,7 +2730,7 @@ export default function ShopSmartUltimate() {
                     placeholder="Product description..."
                   ></textarea>
                 </div>
-                <div className="pt-4 flex gap-3">
+                <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Button
                     variant="primary"
                     className="flex-1"
@@ -2699,6 +2741,7 @@ export default function ShopSmartUltimate() {
                   <Button
                     variant="secondary"
                     onClick={() => setIsEditing(false)}
+                    className="flex-1 sm:flex-none"
                   >
                     Cancel
                   </Button>
@@ -2709,16 +2752,16 @@ export default function ShopSmartUltimate() {
         )}
 
         {showPriceOptimization && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <Card isDark={darkMode} className="w-96 p-6">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+            <Card isDark={darkMode} className="w-full max-w-sm sm:w-96 p-4 sm:p-6">
               <h3
-                className={`font-bold text-lg mb-4 ${
+                className={`font-bold text-lg mb-3 sm:mb-4 ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
                 AI Price Optimization
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div
                   className={`p-3 rounded-lg ${
                     darkMode ? "bg-slate-800/50" : "bg-slate-50"
@@ -2763,10 +2806,11 @@ export default function ShopSmartUltimate() {
                     {showPriceOptimization.explanation}
                   </p>
                 </div>
-                <div className="flex gap-2 justify-end mt-4">
+                <div className="flex flex-col sm:flex-row gap-2 justify-end mt-4">
                   <Button
                     variant="secondary"
                     onClick={() => setShowPriceOptimization(null)}
+                    className="flex-1 sm:flex-none"
                   >
                     Keep Current
                   </Button>
@@ -2789,6 +2833,7 @@ export default function ShopSmartUltimate() {
                         "success"
                       );
                     }}
+                    className="flex-1 sm:flex-none"
                   >
                     Apply AI Price
                   </Button>
@@ -2865,32 +2910,32 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="p-8 h-full overflow-y-auto">
+      <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto">
         <h2
-          className={`text-2xl font-bold mb-6 ${
+          className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ${
             darkMode ? "text-white" : "text-slate-900"
           }`}
         >
           Inventory Management
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <Card
             isDark={darkMode}
-            className="flex items-center gap-4 border-l-4 border-blue-500"
+            className="flex items-center gap-3 sm:gap-4 border-l-4 border-blue-500 p-4"
           >
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
-              <Package size={24} />
+            <div className="p-2 sm:p-3 bg-blue-100 text-blue-600 rounded-lg">
+              <Package size={isMobile ? 20 : 24} />
             </div>
             <div>
               <p
-                className={`text-sm ${
+                className={`text-xs sm:text-sm ${
                   darkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 Total SKUs
               </p>
               <p
-                className={`text-xl font-bold ${
+                className={`text-lg sm:text-xl font-bold ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
@@ -2900,21 +2945,21 @@ export default function ShopSmartUltimate() {
           </Card>
           <Card
             isDark={darkMode}
-            className="flex items-center gap-4 border-l-4 border-rose-500"
+            className="flex items-center gap-3 sm:gap-4 border-l-4 border-rose-500 p-4"
           >
-            <div className="p-3 bg-rose-100 text-rose-600 rounded-lg">
-              <AlertTriangle size={24} />
+            <div className="p-2 sm:p-3 bg-rose-100 text-rose-600 rounded-lg">
+              <AlertTriangle size={isMobile ? 20 : 24} />
             </div>
             <div>
               <p
-                className={`text-sm ${
+                className={`text-xs sm:text-sm ${
                   darkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 Low Stock
               </p>
               <p
-                className={`text-xl font-bold ${
+                className={`text-lg sm:text-xl font-bold ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
@@ -2924,21 +2969,21 @@ export default function ShopSmartUltimate() {
           </Card>
           <Card
             isDark={darkMode}
-            className="flex items-center gap-4 border-l-4 border-emerald-500"
+            className="flex items-center gap-3 sm:gap-4 border-l-4 border-emerald-500 p-4"
           >
-            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
-              <Truck size={24} />
+            <div className="p-2 sm:p-3 bg-emerald-100 text-emerald-600 rounded-lg">
+              <Truck size={isMobile ? 20 : 24} />
             </div>
             <div>
               <p
-                className={`text-sm ${
+                className={`text-xs sm:text-sm ${
                   darkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 Total Value
               </p>
               <p
-                className={`text-xl font-bold ${
+                className={`text-lg sm:text-xl font-bold ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
@@ -2950,14 +2995,14 @@ export default function ShopSmartUltimate() {
           </Card>
         </div>
 
-        <Card isDark={darkMode} noPadding>
+        <Card isDark={darkMode} noPadding className="overflow-hidden">
           <div
-            className={`p-4 border-b flex justify-between ${
+            className={`p-3 sm:p-4 border-b flex flex-col sm:flex-row sm:justify-between gap-3 ${
               darkMode ? "border-slate-700" : "border-slate-100"
             }`}
           >
             <h3
-              className={`font-bold ${
+              className={`font-bold text-base sm:text-lg ${
                 darkMode ? "text-white" : "text-slate-800"
               }`}
             >
@@ -2969,112 +3014,118 @@ export default function ShopSmartUltimate() {
                 icon={Download}
                 className="text-xs"
                 onClick={handleDownloadReport}
+                size="sm"
               >
-                Download Report
+                {isMobile ? "Report" : "Download Report"}
               </Button>
               {settings.autoRestock && (
-                <Badge variant="success">Auto-Restock Enabled</Badge>
+                <Badge variant="success" className="text-xs">
+                  Auto-Restock
+                </Badge>
               )}
             </div>
           </div>
-          <table
-            className={`w-full text-sm text-left ${
-              darkMode ? "text-slate-300" : "text-slate-600"
-            }`}
-          >
-            <thead
-              className={`font-bold uppercase text-xs ${
-                darkMode
-                  ? "bg-slate-800 text-slate-400"
-                  : "bg-slate-50 text-slate-500"
+          <div className="overflow-x-auto">
+            <table
+              className={`w-full text-sm text-left ${
+                darkMode ? "text-slate-300" : "text-slate-600"
               }`}
             >
-              <tr>
-                <th className="px-6 py-4">Product</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Current Stock</th>
-                <th className="px-6 py-4">Reorder At</th>
-                <th className="px-6 py-4">Action</th>
-              </tr>
-            </thead>
-            <tbody
-              className={`divide-y ${
-                darkMode ? "divide-slate-700" : "divide-slate-100"
-              }`}
-            >
-              {products.map((p) => (
-                <tr
-                  key={p.id}
-                  className={`${
-                    darkMode ? "hover:bg-slate-800" : "hover:bg-slate-50"
-                  }`}
-                >
-                  <td className="px-6 py-4 font-medium">
-                    {p.name}{" "}
-                    <span className="text-xs text-slate-400 block">
-                      {p.sku}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge
-                      variant={
-                        p.stock === 0
-                          ? "danger"
-                          : p.stock < settings.lowStock
-                          ? "warning"
-                          : "success"
-                      }
-                    >
-                      {p.stock === 0
-                        ? "Out of Stock"
-                        : p.stock < settings.lowStock
-                        ? "Low Stock"
-                        : "In Stock"}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 font-mono">{p.stock}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`font-medium ${
-                        p.stock <= (p.reorderPoint || 10)
-                          ? "text-rose-600"
-                          : "text-slate-600"
-                      }`}
-                    >
-                      {p.reorderPoint || 10}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => setRestockModal(p)}
-                    >
-                      Restock
-                    </Button>
-                  </td>
+              <thead
+                className={`font-bold uppercase text-xs ${
+                  darkMode
+                    ? "bg-slate-800 text-slate-400"
+                    : "bg-slate-50 text-slate-500"
+                }`}
+              >
+                <tr>
+                  <th className="px-4 py-3">Product</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 hidden sm:table-cell">Current Stock</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Reorder At</th>
+                  <th className="px-4 py-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody
+                className={`divide-y ${
+                  darkMode ? "divide-slate-700" : "divide-slate-100"
+                }`}
+              >
+                {products.map((p) => (
+                  <tr
+                    key={p.id}
+                    className={`${
+                      darkMode ? "hover:bg-slate-800" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <td className="px-4 py-3 font-medium min-w-0 max-w-[150px]">
+                      <div className="truncate">{p.name}</div>
+                      <span className="text-xs text-slate-400 block truncate">
+                        {p.sku}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant={
+                          p.stock === 0
+                            ? "danger"
+                            : p.stock < settings.lowStock
+                            ? "warning"
+                            : "success"
+                        }
+                        className="text-xs"
+                      >
+                        {p.stock === 0
+                          ? "Out"
+                          : p.stock < settings.lowStock
+                          ? "Low"
+                          : "In Stock"}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 font-mono hidden sm:table-cell">{p.stock}</td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <span
+                        className={`font-medium ${
+                          p.stock <= (p.reorderPoint || 10)
+                            ? "text-rose-600"
+                            : "text-slate-600"
+                        }`}
+                      >
+                        {p.reorderPoint || 10}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => setRestockModal(p)}
+                      >
+                        {isMobile ? "Restock" : "Restock"}
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         {restockModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <Card isDark={darkMode} className="w-96 p-6">
-              <div className="flex justify-between items-center mb-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+            <Card isDark={darkMode} className="w-full max-w-sm sm:w-96 p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
                 <h3
-                  className={`font-bold text-lg ${
+                  className={`font-bold text-base sm:text-lg ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
                   Restock {restockModal.name}
                 </h3>
                 <button onClick={() => setRestockModal(null)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div
                   className={`p-3 rounded-lg ${
                     darkMode ? "bg-slate-800/50" : "bg-slate-50"
@@ -3092,7 +3143,7 @@ export default function ShopSmartUltimate() {
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="mb-4"
+                  className="mb-3"
                 />
                 <div
                   className={`p-3 rounded-lg ${
@@ -3107,14 +3158,15 @@ export default function ShopSmartUltimate() {
                     units
                   </p>
                 </div>
-                <div className="flex gap-2 justify-end pt-4">
+                <div className="flex flex-col sm:flex-row gap-2 justify-end pt-3 sm:pt-4">
                   <Button
                     variant="secondary"
                     onClick={() => setRestockModal(null)}
+                    className="flex-1 sm:flex-none"
                   >
                     Cancel
                   </Button>
-                  <Button variant="primary" onClick={handleRestock}>
+                  <Button variant="primary" onClick={handleRestock} className="flex-1 sm:flex-none">
                     Confirm Restock
                   </Button>
                 </div>
@@ -3189,27 +3241,28 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="p-8 h-full overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
           <div>
             <h2
-              className={`text-2xl font-bold ${
+              className={`text-xl sm:text-2xl font-bold ${
                 darkMode ? "text-white" : "text-slate-900"
               }`}
             >
               Customer Relationship Management
             </h2>
-            <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+            <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
               Manage customer profiles, segments, and AI-driven insights
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <Button
               variant="primary"
               icon={Filter}
               onClick={() =>
                 addNotification("Advanced filtering coming soon", "info")
               }
+              size={isMobile ? "sm" : "md"}
             >
               Filter
             </Button>
@@ -3217,25 +3270,26 @@ export default function ShopSmartUltimate() {
               variant="primary"
               icon={UserPlus}
               onClick={() => setIsAddMode(true)}
+              size={isMobile ? "sm" : "md"}
             >
               Add Customer
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {customers.map((c) => (
             <Card
               key={c.id}
               isDark={darkMode}
-              className={`p-6 relative group hover:border-blue-400 transition-colors ${
+              className={`p-4 sm:p-6 relative group hover:border-blue-400 transition-colors ${
                 selectedCustomer?.id === c.id ? "ring-2 ring-blue-500" : ""
               }`}
               onClick={() => setSelectedCustomer(c)}
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-3 sm:mb-4">
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg
                   ${
                     c.segment === "VIP"
                       ? "bg-gradient-to-r from-blue-600 to-indigo-500"
@@ -3254,25 +3308,26 @@ export default function ShopSmartUltimate() {
                       ? "blue"
                       : "default"
                   }
+                  className="text-xs"
                 >
                   {c.segment}
                 </Badge>
               </div>
               <h3
-                className={`font-bold text-lg ${
+                className={`font-bold text-base sm:text-lg truncate ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
                 {c.name}
               </h3>
               <p
-                className={`text-sm mb-4 ${
+                className={`text-xs sm:text-sm mb-3 sm:mb-4 truncate ${
                   darkMode ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 {c.email}
               </p>
-              <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+              <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm mb-3 sm:mb-4">
                 <div
                   className={`p-2 rounded ${
                     darkMode ? "bg-slate-800" : "bg-slate-50"
@@ -3305,7 +3360,7 @@ export default function ShopSmartUltimate() {
 
               {customerInsights[c.id] && (
                 <div
-                  className={`p-3 rounded-lg mb-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors ${
+                  className={`p-2 sm:p-3 rounded-lg mb-2 sm:mb-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors ${
                     darkMode ? "bg-slate-800/50" : "bg-blue-50"
                   }`}
                   onClick={(e) => {
@@ -3336,6 +3391,7 @@ export default function ShopSmartUltimate() {
                     handleAnalyze(c);
                   }}
                   disabled={analyzing === c.id}
+                  size="sm"
                 >
                   {analyzing === c.id ? (
                     <RefreshCw size={14} className="animate-spin" />
@@ -3354,8 +3410,9 @@ export default function ShopSmartUltimate() {
                       handleSendOffer(c, "vip");
                     }}
                     icon={Star}
+                    className="text-xs"
                   >
-                    VIP Offer
+                    {isMobile ? "VIP" : "VIP Offer"}
                   </Button>
                 )}
               </div>
@@ -3364,41 +3421,41 @@ export default function ShopSmartUltimate() {
         </div>
 
         {selectedCustomer && (
-          <div className="mt-6">
-            <Card isDark={darkMode}>
-              <div className="flex justify-between items-center mb-4">
+          <div className="mt-4 sm:mt-6">
+            <Card isDark={darkMode} className="p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
                 <h3
-                  className={`font-bold text-lg ${
+                  className={`font-bold text-base sm:text-lg ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
                   Customer Details: {selectedCustomer.name}
                 </h3>
                 <button onClick={() => setSelectedCustomer(null)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <h4
-                    className={`font-bold mb-3 ${
+                    className={`font-bold mb-2 sm:mb-3 text-sm sm:text-base ${
                       darkMode ? "text-slate-300" : "text-slate-700"
                     }`}
                   >
                     Profile Information
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
                       <p className="text-xs text-slate-500">Email</p>
-                      <p className="font-medium">{selectedCustomer.email}</p>
+                      <p className="font-medium text-sm sm:text-base">{selectedCustomer.email}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Phone</p>
-                      <p className="font-medium">{selectedCustomer.phone}</p>
+                      <p className="font-medium text-sm sm:text-base">{selectedCustomer.phone}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Last Visit</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm sm:text-base">
                         {selectedCustomer.lastVisit}
                       </p>
                     </div>
@@ -3406,22 +3463,22 @@ export default function ShopSmartUltimate() {
                 </div>
                 <div>
                   <h4
-                    className={`font-bold mb-3 ${
+                    className={`font-bold mb-2 sm:mb-3 text-sm sm:text-base ${
                       darkMode ? "text-slate-300" : "text-slate-700"
                     }`}
                   >
                     Purchase Statistics
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
                       <p className="text-xs text-slate-500">Total Visits</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm sm:text-base">
                         {selectedCustomer.visitCount || 1}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Average Spend</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm sm:text-base">
                         {formatCurrency(
                           (selectedCustomer.totalSpent || 0) /
                             (selectedCustomer.visitCount || 1)
@@ -3432,34 +3489,38 @@ export default function ShopSmartUltimate() {
                       <p className="text-xs text-slate-500">Loyalty Points</p>
                       <div className="flex items-center gap-2">
                         <Star className="text-amber-500" size={16} />
-                        <p className="font-medium">{selectedCustomer.points}</p>
+                        <p className="font-medium text-sm sm:text-base">{selectedCustomer.points}</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700">
                 <h4
-                  className={`font-bold mb-3 ${
+                  className={`font-bold mb-2 sm:mb-3 text-sm sm:text-base ${
                     darkMode ? "text-slate-300" : "text-slate-700"
                   }`}
                 >
                   Quick Actions
                 </h4>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Button
                     variant="primary"
                     onClick={() =>
                       handleSendOffer(selectedCustomer, "discount")
                     }
+                    size="sm"
+                    className="flex-1"
                   >
-                    Send Discount
+                    {isMobile ? "Discount" : "Send Discount"}
                   </Button>
                   <Button
                     variant="primary"
                     onClick={() => handleSendOffer(selectedCustomer, "loyalty")}
+                    size="sm"
+                    className="flex-1"
                   >
-                    Loyalty Program
+                    {isMobile ? "Loyalty" : "Loyalty Program"}
                   </Button>
                   <Button
                     variant="primary"
@@ -3471,8 +3532,10 @@ export default function ShopSmartUltimate() {
                         "success"
                       );
                     }}
+                    size="sm"
+                    className="flex-1"
                   >
-                    Start Sale
+                    {isMobile ? "Start Sale" : "Start Sale"}
                   </Button>
                 </div>
               </div>
@@ -3481,18 +3544,18 @@ export default function ShopSmartUltimate() {
         )}
 
         {isAddMode && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <Card isDark={darkMode} className="w-96 p-6">
-              <div className="flex justify-between items-center mb-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+            <Card isDark={darkMode} className="w-full max-w-sm sm:w-96 p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-3 sm:mb-4">
                 <h3
-                  className={`font-bold text-lg ${
+                  className={`font-bold text-base sm:text-lg ${
                     darkMode ? "text-white" : "text-slate-800"
                   }`}
                 >
                   New Customer
                 </h3>
                 <button onClick={() => setIsAddMode(false)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
               <div className="space-y-3">
@@ -3539,14 +3602,15 @@ export default function ShopSmartUltimate() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2 justify-end mt-4 pt-2">
+                <div className="flex flex-col sm:flex-row gap-2 justify-end mt-3 sm:mt-4 pt-2">
                   <Button
                     variant="secondary"
                     onClick={() => setIsAddMode(false)}
+                    className="flex-1 sm:flex-none"
                   >
                     Cancel
                   </Button>
-                  <Button variant="primary" onClick={handleAddCustomer}>
+                  <Button variant="primary" onClick={handleAddCustomer} className="flex-1 sm:flex-none">
                     Create Profile
                   </Button>
                 </div>
@@ -3556,39 +3620,39 @@ export default function ShopSmartUltimate() {
         )}
 
         {showInsightModal && currentInsight && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
             <Card
               isDark={darkMode}
-              className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+              className="w-full max-w-sm sm:max-w-lg md:max-w-2xl max-h-[80vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6">
-                <div>
+              <div className="flex justify-between items-center mb-4 sm:mb-6 p-4 sm:p-6">
+                <div className="min-w-0">
                   <h2
-                    className={`text-xl font-bold ${
+                    className={`text-lg sm:text-xl font-bold truncate ${
                       darkMode ? "text-white" : "text-slate-900"
                     }`}
                   >
                     AI Customer Insights
                   </h2>
-                  <p className={darkMode ? "text-slate-400" : "text-slate-500"}>
+                  <p className={`text-sm ${darkMode ? "text-slate-400" : "text-slate-500"} truncate`}>
                     {currentInsight.customer.name} • {currentInsight.summary}
                   </p>
                 </div>
                 <button onClick={() => setShowInsightModal(false)}>
-                  <X className="text-slate-400 hover:text-slate-600" />
+                  <X className="text-slate-400 hover:text-slate-600" size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-6">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {currentInsight.insights.map((insight, idx) => (
                   <div
                     key={idx}
-                    className={`p-4 rounded-xl ${
+                    className={`p-3 sm:p-4 rounded-xl ${
                       darkMode ? "bg-slate-800/50" : "bg-slate-50"
                     }`}
                   >
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
                           insight.priority === "high"
                             ? "bg-rose-100 text-rose-600"
                             : insight.priority === "medium"
@@ -3602,19 +3666,19 @@ export default function ShopSmartUltimate() {
                           ? "⚡"
                           : "💡"}
                       </div>
-                      <h3 className="font-bold text-lg">{insight.segment}</h3>
+                      <h3 className="font-bold text-base sm:text-lg">{insight.segment}</h3>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <p className="text-sm font-medium text-slate-500 mb-1">
+                        <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">
                           AI Recommendation
                         </p>
-                        <p className="font-medium">{insight.recommendation}</p>
+                        <p className="font-medium text-sm sm:text-base">{insight.recommendation}</p>
                       </div>
 
                       <div>
-                        <p className="text-sm font-medium text-slate-500 mb-1">
+                        <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">
                           Action Item
                         </p>
                         <div
@@ -3622,7 +3686,7 @@ export default function ShopSmartUltimate() {
                             darkMode ? "bg-blue-900/20" : "bg-blue-50"
                           }`}
                         >
-                          <p>{insight.action}</p>
+                          <p className="text-sm sm:text-base">{insight.action}</p>
                         </div>
                       </div>
 
@@ -3636,7 +3700,7 @@ export default function ShopSmartUltimate() {
                             <p className="text-xs text-slate-500">
                               Purchase Frequency
                             </p>
-                            <p className="font-bold">
+                            <p className="font-bold text-sm">
                               {insight.metrics.purchaseFrequency}
                             </p>
                           </div>
@@ -3648,7 +3712,7 @@ export default function ShopSmartUltimate() {
                             <p className="text-xs text-slate-500">
                               Avg Order Value
                             </p>
-                            <p className="font-bold">
+                            <p className="font-bold text-sm">
                               {insight.metrics.avgOrderValue}
                             </p>
                           </div>
@@ -3660,7 +3724,7 @@ export default function ShopSmartUltimate() {
                             <p className="text-xs text-slate-500">
                               Retention Rate
                             </p>
-                            <p className="font-bold">
+                            <p className="font-bold text-sm">
                               {insight.metrics.retentionRate}
                             </p>
                           </div>
@@ -3673,10 +3737,10 @@ export default function ShopSmartUltimate() {
                             darkMode ? "bg-purple-900/20" : "bg-purple-50"
                           }`}
                         >
-                          <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">
+                          <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">
                             Personalized Recommendations
                           </p>
-                          <p className="text-sm">{insight.personalized}</p>
+                          <p className="text-xs sm:text-sm">{insight.personalized}</p>
                         </div>
                       )}
 
@@ -3688,10 +3752,10 @@ export default function ShopSmartUltimate() {
                               : "border-emerald-200 bg-emerald-50"
                           }`}
                         >
-                          <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-1">
+                          <p className="text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-1">
                             Next Best Action
                           </p>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm sm:text-base">
                             {insight.nextBestAction}
                           </p>
                         </div>
@@ -3700,10 +3764,11 @@ export default function ShopSmartUltimate() {
                   </div>
                 ))}
               </div>
-              <div className="pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+              <div className="pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-end p-4 sm:p-6">
                 <Button
                   variant="primary"
                   onClick={() => setShowInsightModal(false)}
+                  size={isMobile ? "sm" : "md"}
                 >
                   Close Insights
                 </Button>
@@ -3748,19 +3813,19 @@ export default function ShopSmartUltimate() {
     };
 
     return (
-      <div className="p-8 h-full overflow-y-auto max-w-5xl mx-auto">
+      <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto">
         <h2
-          className={`text-2xl font-bold mb-6 ${
+          className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ${
             darkMode ? "text-white" : "text-slate-900"
           }`}
         >
           Settings & System Configuration
         </h2>
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
           <Card
             isDark={darkMode}
             noPadding
-            className="w-64 h-fit overflow-hidden"
+            className="w-full lg:w-64 h-fit overflow-hidden"
           >
             {[
               { id: "general", label: "General Config", icon: Settings },
@@ -3771,21 +3836,21 @@ export default function ShopSmartUltimate() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 p-4 text-sm font-medium transition-colors border-l-4 ${
+                className={`w-full flex items-center gap-3 p-3 sm:p-4 text-sm font-medium transition-colors border-l-4 ${
                   activeTab === tab.id
                     ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
                     : "border-transparent text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
-                <tab.icon size={18} /> {tab.label}
+                <tab.icon size={18} /> <span className="truncate">{tab.label}</span>
               </button>
             ))}
           </Card>
           <div className="flex-1">
             {activeTab === "general" && (
-              <Card isDark={darkMode} className="space-y-6">
+              <Card isDark={darkMode} className="space-y-4 sm:space-y-6">
                 <h3
-                  className={`font-bold border-b pb-4 mb-4 ${
+                  className={`font-bold border-b pb-3 sm:pb-4 mb-3 sm:mb-4 text-base sm:text-lg ${
                     darkMode
                       ? "text-white border-slate-700"
                       : "text-slate-800 border-slate-100"
@@ -3793,7 +3858,7 @@ export default function ShopSmartUltimate() {
                 >
                   Store Configuration
                 </h3>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <Input
                     isDark={darkMode}
                     label="Store Name"
@@ -3855,10 +3920,10 @@ export default function ShopSmartUltimate() {
                     }
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div>
-                    <p className="font-bold">Auto-Restock</p>
-                    <p className="text-sm text-slate-500">
+                <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm sm:text-base">Auto-Restock</p>
+                    <p className="text-xs sm:text-sm text-slate-500 truncate">
                       Automatically create purchase orders for low stock items
                     </p>
                   </div>
@@ -3869,7 +3934,7 @@ export default function ShopSmartUltimate() {
                         autoRestock: !prev.autoRestock,
                       }))
                     }
-                    className={`w-12 h-6 rounded-full transition-colors relative flex items-center ${
+                    className={`w-12 h-6 rounded-full transition-colors relative flex items-center flex-shrink-0 ${
                       localSettings.autoRestock ? "bg-blue-600" : "bg-slate-300"
                     }`}
                   >
@@ -3882,7 +3947,7 @@ export default function ShopSmartUltimate() {
                     ></span>
                   </button>
                 </div>
-                <div className="flex justify-end pt-4">
+                <div className="flex justify-end pt-3 sm:pt-4">
                   <Button variant="primary" onClick={handleSave} icon={Save}>
                     Save Changes
                   </Button>
@@ -3891,9 +3956,9 @@ export default function ShopSmartUltimate() {
             )}
 
             {activeTab === "ai" && (
-              <Card isDark={darkMode} className="space-y-6">
+              <Card isDark={darkMode} className="space-y-4 sm:space-y-6">
                 <h3
-                  className={`font-bold border-b pb-4 mb-4 ${
+                  className={`font-bold border-b pb-3 sm:pb-4 mb-3 sm:mb-4 text-base sm:text-lg ${
                     darkMode
                       ? "text-white border-slate-700"
                       : "text-slate-800 border-slate-100"
@@ -3901,19 +3966,19 @@ export default function ShopSmartUltimate() {
                 >
                   AI Configuration
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div
-                    className={`p-4 rounded-xl border ${
+                    className={`p-3 sm:p-4 rounded-xl border ${
                       darkMode
                         ? "border-slate-700 bg-slate-800/50"
                         : "border-slate-200 bg-slate-50"
                     }`}
                   >
-                    <div className="flex items-center gap-3 mb-2">
-                      <BrainCircuit className="text-blue-500" />
-                      <p className="font-bold">AI Assistant</p>
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                      <BrainCircuit className="text-blue-500" size={isMobile ? 18 : 20} />
+                      <p className="font-bold text-sm sm:text-base">AI Assistant</p>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3">
                       Enable AI-powered insights and recommendations throughout
                       the system
                     </p>
@@ -3938,13 +4003,13 @@ export default function ShopSmartUltimate() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div
-                      className={`p-4 rounded-xl border ${
+                      className={`p-3 sm:p-4 rounded-xl border ${
                         darkMode ? "border-slate-700" : "border-slate-200"
                       }`}
                     >
-                      <p className="font-bold text-sm mb-1">
+                      <p className="font-bold text-xs sm:text-sm mb-1">
                         Price Optimization
                       </p>
                       <p className="text-xs text-slate-500">
@@ -3952,11 +4017,11 @@ export default function ShopSmartUltimate() {
                       </p>
                     </div>
                     <div
-                      className={`p-4 rounded-xl border ${
+                      className={`p-3 sm:p-4 rounded-xl border ${
                         darkMode ? "border-slate-700" : "border-slate-200"
                       }`}
                     >
-                      <p className="font-bold text-sm mb-1">
+                      <p className="font-bold text-xs sm:text-sm mb-1">
                         Sales Forecasting
                       </p>
                       <p className="text-xs text-slate-500">
@@ -3964,11 +4029,11 @@ export default function ShopSmartUltimate() {
                       </p>
                     </div>
                     <div
-                      className={`p-4 rounded-xl border ${
+                      className={`p-3 sm:p-4 rounded-xl border ${
                         darkMode ? "border-slate-700" : "border-slate-200"
                       }`}
                     >
-                      <p className="font-bold text-sm mb-1">
+                      <p className="font-bold text-xs sm:text-sm mb-1">
                         Customer Insights
                       </p>
                       <p className="text-xs text-slate-500">
@@ -3976,11 +4041,11 @@ export default function ShopSmartUltimate() {
                       </p>
                     </div>
                     <div
-                      className={`p-4 rounded-xl border ${
+                      className={`p-3 sm:p-4 rounded-xl border ${
                         darkMode ? "border-slate-700" : "border-slate-200"
                       }`}
                     >
-                      <p className="font-bold text-sm mb-1">
+                      <p className="font-bold text-xs sm:text-sm mb-1">
                         Inventory Prediction
                       </p>
                       <p className="text-xs text-slate-500">
@@ -3993,10 +4058,10 @@ export default function ShopSmartUltimate() {
             )}
 
             {activeTab === "logs" && (
-              <Card isDark={darkMode} className="h-[600px] flex flex-col">
-                <div className="flex justify-between items-center mb-4">
+              <Card isDark={darkMode} className="h-[400px] sm:h-[500px] flex flex-col">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3 sm:mb-4">
                   <h3
-                    className={`font-bold ${
+                    className={`font-bold text-base sm:text-lg ${
                       darkMode ? "text-white" : "text-slate-800"
                     }`}
                   >
@@ -4006,27 +4071,28 @@ export default function ShopSmartUltimate() {
                     variant="primary"
                     icon={Download}
                     onClick={handleExportLogs}
+                    size={isMobile ? "sm" : "md"}
                   >
-                    Export Logs
+                    {isMobile ? "Export" : "Export Logs"}
                   </Button>
                 </div>
                 <div className="flex-1 overflow-y-auto pr-2">
                   {auditLogs.length === 0 ? (
-                    <p className="text-slate-500 italic">
+                    <p className="text-slate-500 italic text-center py-8">
                       No logs recorded in this session.
                     </p>
                   ) : (
-                    <div className="relative border-l border-slate-200 dark:border-slate-700 ml-3 space-y-6">
+                    <div className="relative border-l border-slate-200 dark:border-slate-700 ml-3 space-y-4 sm:space-y-6">
                       {auditLogs.map((log, idx) => (
-                        <div key={idx} className="ml-6 relative">
+                        <div key={idx} className="ml-4 sm:ml-6 relative">
                           <span
-                            className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-2 ${
+                            className={`absolute -left-[23px] sm:-left-[31px] top-0 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 ${
                               darkMode
                                 ? "bg-slate-800 border-blue-500"
                                 : "bg-white border-blue-500"
                             }`}
                           ></span>
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                             <Badge
                               variant={
                                 log.action.includes("LOGIN")
@@ -4037,6 +4103,7 @@ export default function ShopSmartUltimate() {
                                   ? "danger"
                                   : "default"
                               }
+                              className="w-fit"
                             >
                               {log.action}
                             </Badge>
@@ -4045,7 +4112,7 @@ export default function ShopSmartUltimate() {
                             </span>
                           </div>
                           <p
-                            className={`text-sm ${
+                            className={`text-xs sm:text-sm ${
                               darkMode ? "text-slate-400" : "text-slate-600"
                             }`}
                           >
@@ -4073,9 +4140,9 @@ export default function ShopSmartUltimate() {
             )}
 
             {activeTab === "appearance" && (
-              <Card isDark={darkMode} className="space-y-6">
+              <Card isDark={darkMode} className="space-y-4 sm:space-y-6">
                 <h3
-                  className={`font-bold border-b pb-4 mb-4 ${
+                  className={`font-bold border-b pb-3 sm:pb-4 mb-3 sm:mb-4 text-base sm:text-lg ${
                     darkMode
                       ? "text-white border-slate-700"
                       : "text-slate-800 border-slate-100"
@@ -4083,38 +4150,38 @@ export default function ShopSmartUltimate() {
                 >
                   Appearance
                 </h3>
-                <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div
-                      className={`p-3 rounded-full ${
+                      className={`p-2 sm:p-3 rounded-full ${
                         darkMode
                           ? "bg-slate-700 text-white"
                           : "bg-orange-100 text-orange-500"
                       }`}
                     >
-                      {darkMode ? <Moon size={24} /> : <Sun size={24} />}
+                      {darkMode ? <Moon size={isMobile ? 20 : 24} /> : <Sun size={isMobile ? 20 : 24} />}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p
-                        className={`font-bold ${
+                        className={`font-bold text-sm sm:text-base ${
                           darkMode ? "text-white" : "text-slate-900"
                         }`}
                       >
                         Dark Mode
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-xs sm:text-sm text-slate-500 truncate">
                         Toggle system-wide dark theme
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setDarkMode(!darkMode)}
-                    className={`w-14 h-8 rounded-full transition-colors relative flex items-center ${
+                    className={`w-12 h-6 sm:w-14 sm:h-8 rounded-full transition-colors relative flex items-center flex-shrink-0 ${
                       darkMode ? "bg-blue-600" : "bg-slate-300"
                     }`}
                   >
                     <span
-                      className={`w-6 h-6 bg-white rounded-full absolute transition-transform ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full absolute transition-transform ${
                         darkMode ? "translate-x-7" : "translate-x-1"
                       }`}
                     ></span>
@@ -4202,41 +4269,41 @@ export default function ShopSmartUltimate() {
     >
       <aside
         className={`transition-all duration-300 z-20 flex flex-col border-r shadow-xl ${
-          isSidebarOpen ? "w-64" : "w-20"
+          isSidebarOpen ? "w-64" : "w-16"
         } ${
           darkMode
             ? "bg-slate-900 border-slate-800"
             : "bg-white border-slate-100"
-        }`}
+        } ${isMobile && !isSidebarOpen ? "hidden" : ""} ${isMobile && isSidebarOpen ? "fixed inset-y-0 left-0 w-64 z-40" : ""}`}
       >
-        <div className="h-20 flex items-center px-6 border-b border-transparent">
+        <div className="h-16 sm:h-20 flex items-center px-4 sm:px-6 border-b border-transparent">
           <div
-            className={`w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20`}
+            className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-500/20`}
           >
             {user.role === ROLES.ADMIN ? (
-              <Settings size={22} />
+              <Settings size={isMobile ? 18 : 22} />
             ) : user.role === ROLES.MANAGER ? (
-              <Users size={22} />
+              <Users size={isMobile ? 18 : 22} />
             ) : (
-              <ShoppingCart size={22} />
+              <ShoppingCart size={isMobile ? 18 : 22} />
             )}
           </div>
           {isSidebarOpen && (
-            <div className="ml-3">
+            <div className="ml-3 min-w-0">
               <span
-                className={`font-bold text-xl tracking-tight ${
+                className={`font-bold text-lg sm:text-xl tracking-tight truncate ${
                   darkMode ? "text-white" : "text-slate-800"
                 }`}
               >
                 ShopSmart
               </span>
-              <div className="text-xs font-medium text-slate-500 uppercase">
+              <div className="text-xs font-medium text-slate-500 uppercase truncate">
                 {user.role}
               </div>
             </div>
           )}
         </div>
-        <nav className="flex-1 py-6 px-3 space-y-2">
+        <nav className="flex-1 py-4 sm:py-6 px-2 sm:px-3 space-y-1 sm:space-y-2">
           {getNavigationItems()
             .filter((item) => item.roles.includes(user.role))
             .map((item) => (
@@ -4252,45 +4319,54 @@ export default function ShopSmartUltimate() {
                   } else {
                     setCurrentView(item.id);
                   }
+                  if (isMobile) setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all relative group ${
+                className={`w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 sm:py-3 rounded-xl transition-all relative group ${
                   currentView === item.id
                     ? `bg-gradient-to-r ${item.color} text-white shadow-md`
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600"
                 }`}
               >
-                <item.icon size={22} />
+                <item.icon size={isMobile ? 20 : 22} />
                 {isSidebarOpen && (
-                  <span className="font-medium">{item.label}</span>
+                  <span className="font-medium text-sm sm:text-base truncate">{item.label}</span>
                 )}
                 {!isSidebarOpen && (
-                  <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
                     {item.label}
                   </div>
                 )}
               </button>
             ))}
         </nav>
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+        <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800">
           <button
             onClick={() => setUser(null)}
-            className="w-full flex items-center gap-3 px-3 py-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors"
+            className="w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors"
           >
-            <LogOut size={20} />
-            {isSidebarOpen && <span className="font-medium">Sign Out</span>}
+            <LogOut size={isMobile ? 18 : 20} />
+            {isSidebarOpen && <span className="font-medium text-sm sm:text-base">Sign Out</span>}
           </button>
         </div>
       </aside>
 
+      {/* Mobile sidebar overlay */}
+      {isMobile && isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <main className="flex-1 flex flex-col min-w-0 relative">
         <header
-          className={`h-20 flex items-center justify-between px-8 z-10 border-b ${
+          className={`h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-10 border-b ${
             darkMode
               ? "bg-slate-900/80 border-slate-800"
               : "bg-white/80 border-slate-100"
           } backdrop-blur-md`}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => setSidebarOpen(!isSidebarOpen)}
               className={`p-2 rounded-lg transition-colors ${
@@ -4299,10 +4375,10 @@ export default function ShopSmartUltimate() {
                   : "hover:bg-slate-100 text-slate-500"
               }`}
             >
-              <Menu size={20} />
+              <Menu size={isMobile ? 18 : 20} />
             </button>
             <h1
-              className={`text-2xl font-bold capitalize ${
+              className={`text-lg sm:text-xl lg:text-2xl font-bold capitalize truncate ${
                 darkMode ? "text-white" : "text-slate-800"
               }`}
             >
@@ -4315,11 +4391,27 @@ export default function ShopSmartUltimate() {
                 " - Quick Sale"}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            {settings.enableAI && (
+          <div className="flex items-center gap-2 sm:gap-4">
+            {settings.enableAI && !isMobile && (
               <button
                 onClick={() => setAIChatOpen(!isAIChatOpen)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border transition-all ${
+                  isAIChatOpen
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-transparent"
+                    : darkMode
+                    ? "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <BrainCircuit size={isMobile ? 16 : 18} />
+                <span className="text-xs sm:text-sm font-medium">AI Assistant</span>
+                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+              </button>
+            )}
+            {settings.enableAI && isMobile && (
+              <button
+                onClick={() => setAIChatOpen(!isAIChatOpen)}
+                className={`p-2 rounded-full border transition-all ${
                   isAIChatOpen
                     ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-transparent"
                     : darkMode
@@ -4328,34 +4420,34 @@ export default function ShopSmartUltimate() {
                 }`}
               >
                 <BrainCircuit size={18} />
-                <span className="text-sm font-medium">AI Assistant</span>
-                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
               </button>
             )}
             <div
-              className={`flex items-center gap-3 px-4 py-2 rounded-full border ${
+              className={`flex items-center gap-2 sm:gap-3 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border ${
                 darkMode
                   ? "bg-slate-800 border-slate-700"
                   : "bg-white border-slate-200 shadow-sm"
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm`}
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm`}
               >
                 {user.avatar}
               </div>
-              <div className="text-sm">
-                <p
-                  className={`font-bold leading-none ${
-                    darkMode ? "text-white" : "text-slate-800"
-                  }`}
-                >
-                  {user.name}
-                </p>
-                <p className={`text-xs uppercase font-semibold text-blue-500`}>
-                  {user.role}
-                </p>
-              </div>
+              {!isMobile && (
+                <div className="text-xs sm:text-sm min-w-0">
+                  <p
+                    className={`font-bold leading-none truncate ${
+                      darkMode ? "text-white" : "text-slate-800"
+                    }`}
+                  >
+                    {user.name}
+                  </p>
+                  <p className={`text-xs uppercase font-semibold text-blue-500 truncate`}>
+                    {user.role}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -4370,16 +4462,16 @@ export default function ShopSmartUltimate() {
 
           {isAIChatOpen && (
             <div
-              className={`absolute right-0 top-0 bottom-0 w-96 shadow-2xl border-l flex flex-col z-30 animate-in slide-in-from-right duration-300 ${
+              className={`absolute right-0 top-0 bottom-0 w-full sm:w-80 lg:w-96 shadow-2xl border-l flex flex-col z-30 animate-in slide-in-from-right duration-300 ${
                 darkMode
                   ? "bg-slate-900 border-slate-800"
                   : "bg-white border-slate-200"
-              }`}
+              } ${isMobile ? "inset-0" : ""}`}
             >
-              <div className="p-4 border-b border-blue-500/30 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <div className="p-3 sm:p-4 border-b border-blue-500/30 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-700 text-white">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={18} />
-                  <h3 className="font-bold">AI Assistant</h3>
+                  <Sparkles size={isMobile ? 16 : 18} />
+                  <h3 className="font-bold text-sm sm:text-base">AI Assistant</h3>
                   <Badge variant="success" className="!text-xs !py-0.5">
                     {user.role} Mode
                   </Badge>
@@ -4388,11 +4480,11 @@ export default function ShopSmartUltimate() {
                   onClick={() => setAIChatOpen(false)}
                   className="hover:bg-white/20 p-1 rounded"
                 >
-                  <X size={18} />
+                  <X size={isMobile ? 18 : 20} />
                 </button>
               </div>
               <div
-                className={`flex-1 overflow-y-auto p-4 space-y-4 ${
+                className={`flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 ${
                   darkMode ? "bg-slate-900" : "bg-slate-50"
                 }`}
               >
@@ -4404,7 +4496,7 @@ export default function ShopSmartUltimate() {
                     }`}
                   >
                     <div
-                      className={`max-w-[85%] p-3 rounded-xl text-sm ${
+                      className={`max-w-[85%] p-2 sm:p-3 rounded-xl text-xs sm:text-sm ${
                         msg.role === "user"
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-none"
                           : darkMode
@@ -4419,22 +4511,22 @@ export default function ShopSmartUltimate() {
                 {aiTyping && (
                   <div className="flex justify-start">
                     <div
-                      className={`px-4 py-3 rounded-xl rounded-bl-none flex gap-1 ${
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-xl rounded-bl-none flex gap-1 ${
                         darkMode
                           ? "bg-slate-800"
                           : "bg-white border border-slate-200"
                       }`}
                     >
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span>
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span>
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-400 rounded-full animate-bounce delay-75"></span>
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-400 rounded-full animate-bounce delay-150"></span>
                     </div>
                   </div>
                 )}
               </div>
               <form
                 onSubmit={handleAIChatSubmit}
-                className={`p-4 border-t ${
+                className={`p-3 sm:p-4 border-t ${
                   darkMode
                     ? "bg-slate-900 border-slate-800"
                     : "bg-white border-slate-200"
@@ -4451,7 +4543,7 @@ export default function ShopSmartUltimate() {
                         ? "sales, inventory, products"
                         : "product info, prices"
                     }`}
-                    className={`w-full pl-4 pr-10 py-3 rounded-xl border outline-none text-sm ${
+                    className={`w-full pl-3 sm:pl-4 pr-10 py-2.5 sm:py-3 rounded-xl border outline-none text-xs sm:text-sm ${
                       darkMode
                         ? "bg-slate-800 border-slate-700 text-white focus:border-blue-500"
                         : "bg-slate-50 border-slate-200 focus:ring-2 focus:ring-blue-500"
@@ -4460,12 +4552,12 @@ export default function ShopSmartUltimate() {
                   <button
                     type="submit"
                     disabled={!aiInput.trim() || aiTyping}
-                    className="absolute right-2 top-2 p-1.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
+                    className="absolute right-2 top-2 p-1 sm:p-1.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
                   >
-                    <ChevronRight size={18} />
+                    <ChevronRight size={isMobile ? 16 : 18} />
                   </button>
                 </div>
-                <div className="flex gap-2 mt-3 flex-wrap">
+                <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-3 flex-wrap">
                   <button
                     type="button"
                     onClick={() =>
@@ -4498,41 +4590,41 @@ export default function ShopSmartUltimate() {
         </div>
 
         {showReceipt && lastOrder && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-md shadow-2xl rounded-lg overflow-hidden flex flex-col max-h-[90vh] print:hidden">
-              <div className="p-6 bg-gradient-to-r from-slate-800 to-slate-900 text-white text-center relative">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-white w-full max-w-sm sm:max-w-md shadow-2xl rounded-lg overflow-hidden flex flex-col max-h-[90vh] print:hidden">
+              <div className="p-4 sm:p-6 bg-gradient-to-r from-slate-800 to-slate-900 text-white text-center relative">
                 <CheckCircle
                   className="mx-auto mb-3 text-emerald-400"
-                  size={48}
+                  size={isMobile ? 32 : 48}
                 />
-                <h2 className="text-2xl font-bold">Payment Successful</h2>
-                <p className="text-slate-300 text-sm mt-1">
+                <h2 className="text-xl sm:text-2xl font-bold">Payment Successful</h2>
+                <p className="text-slate-300 text-xs sm:text-sm mt-1">
                   Order confirmed and receipt generated
                 </p>
               </div>
 
-              <div className="p-6 bg-white flex-1 overflow-y-auto">
-                <div className="text-center mb-6">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Building2 className="text-slate-600" size={24} />
+              <div className="p-4 sm:p-6 bg-white flex-1 overflow-y-auto">
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="mb-3 sm:mb-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                      <Building2 className="text-slate-600" size={isMobile ? 20 : 24} />
                     </div>
-                    <h3 className="font-bold text-slate-900 text-xl uppercase tracking-wider">
+                    <h3 className="font-bold text-slate-900 text-lg sm:text-xl uppercase tracking-wider">
                       {settings.storeName}
                     </h3>
-                    <p className="text-sm text-slate-600 mt-1">
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1">
                       OFFICIAL RECEIPT
                     </p>
                   </div>
-                  <div className="inline-block px-4 py-2 bg-slate-100 rounded-full">
-                    <p className="text-sm font-mono text-slate-700">
+                  <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-100 rounded-full">
+                    <p className="text-xs font-mono text-slate-700">
                       Order #{lastOrder.id}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div>
                       <p className="text-slate-500 text-xs uppercase tracking-wider">
                         Date
@@ -4559,7 +4651,7 @@ export default function ShopSmartUltimate() {
                   </div>
 
                   <div className="border border-slate-200 rounded-lg overflow-hidden">
-                    <div className="bg-slate-50 p-3 grid grid-cols-12 text-xs font-medium text-slate-700 uppercase tracking-wider">
+                    <div className="bg-slate-50 p-2 sm:p-3 grid grid-cols-12 text-xs font-medium text-slate-700 uppercase tracking-wider">
                       <div className="col-span-7">Description</div>
                       <div className="col-span-2 text-center">Qty</div>
                       <div className="col-span-3 text-right">Amount</div>
@@ -4568,9 +4660,9 @@ export default function ShopSmartUltimate() {
                       {lastOrder.items.map((item, idx) => (
                         <div
                           key={idx}
-                          className="p-3 grid grid-cols-12 text-sm"
+                          className="p-2 sm:p-3 grid grid-cols-12 text-xs sm:text-sm"
                         >
-                          <div className="col-span-7 font-medium text-slate-900">
+                          <div className="col-span-7 font-medium text-slate-900 truncate">
                             {item.name}
                           </div>
                           <div className="col-span-2 text-center text-slate-600">
@@ -4584,8 +4676,8 @@ export default function ShopSmartUltimate() {
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-200 pt-4 space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="border-t border-slate-200 pt-3 sm:pt-4 space-y-1.5 sm:space-y-2">
+                    <div className="flex justify-between text-xs sm:text-sm">
                       <span className="text-slate-600">Subtotal</span>
                       <span className="font-medium">
                         $
@@ -4593,19 +4685,19 @@ export default function ShopSmartUltimate() {
                           lastOrder.total.toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs sm:text-sm">
                       <span className="text-slate-600">Tax</span>
                       <span className="font-medium">
                         ${(lastOrder.tax || 0).toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-lg font-bold text-slate-900 pt-2 border-t border-slate-200">
+                    <div className="flex justify-between text-base sm:text-lg font-bold text-slate-900 pt-2 border-t border-slate-200">
                       <span>TOTAL</span>
                       <span>${lastOrder.total.toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-lg">
+                  <div className="bg-slate-50 p-3 sm:p-4 rounded-lg">
                     <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">
                       Payment Method
                     </p>
@@ -4618,7 +4710,7 @@ export default function ShopSmartUltimate() {
                     </p>
                   </div>
 
-                  <div className="text-center pt-4 border-t border-slate-200">
+                  <div className="text-center pt-3 sm:pt-4 border-t border-slate-200">
                     <p className="text-xs text-slate-500 mb-2">
                       Thank you for your purchase!
                       <br />
@@ -4628,17 +4720,18 @@ export default function ShopSmartUltimate() {
                       <span>Powered by</span>
                       <ShoppingBag size={10} />
                       <span className="font-medium">ShopSmart.ai</span>
-                      <span>• {window.location.hostname}</span>
+                      <span className="hidden sm:inline">• {window.location.hostname}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 border-t border-slate-200 flex gap-3">
+              <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex gap-2 sm:gap-3">
                 <Button
                   variant="primary"
                   className="flex-1"
                   onClick={() => setShowReceipt(false)}
+                  size={isMobile ? "sm" : "md"}
                 >
                   Close
                 </Button>
@@ -4657,61 +4750,61 @@ export default function ShopSmartUltimate() {
                             body { 
                               font-family: 'Inter', sans-serif; 
                               margin: 0; 
-                              padding: 40px; 
+                              padding: 20px; 
                               background: white;
                               color: #1e293b;
                             }
                             @media print {
                               @page { margin: 0; size: auto; }
-                              body { padding: 20px; }
+                              body { padding: 15px; }
                             }
                             .receipt-container {
-                              max-width: 600px;
+                              max-width: 100%;
                               margin: 0 auto;
                               border: 1px solid #e2e8f0;
                               border-radius: 8px;
-                              padding: 40px;
+                              padding: 20px;
                               background: white;
                             }
                             .header {
                               text-align: center;
-                              margin-bottom: 30px;
-                              padding-bottom: 20px;
+                              margin-bottom: 20px;
+                              padding-bottom: 15px;
                               border-bottom: 2px solid #0f172a;
                             }
                             .store-name {
-                              font-size: 28px;
+                              font-size: 20px;
                               font-weight: 700;
                               color: #0f172a;
                               letter-spacing: 1px;
                               margin-bottom: 5px;
                             }
                             .document-title {
-                              font-size: 12px;
+                              font-size: 11px;
                               color: #64748b;
                               text-transform: uppercase;
                               letter-spacing: 2px;
-                              margin-bottom: 15px;
+                              margin-bottom: 10px;
                             }
                             .order-number {
                               display: inline-block;
                               background: #f1f5f9;
-                              padding: 8px 16px;
+                              padding: 6px 12px;
                               border-radius: 20px;
                               font-family: monospace;
-                              font-size: 14px;
+                              font-size: 12px;
                               color: #475569;
                             }
                             .info-grid {
                               display: grid;
                               grid-template-columns: 1fr 1fr;
-                              gap: 20px;
-                              margin-bottom: 30px;
-                              font-size: 14px;
+                              gap: 15px;
+                              margin-bottom: 20px;
+                              font-size: 13px;
                             }
                             .info-label {
                               color: #64748b;
-                              font-size: 11px;
+                              font-size: 10px;
                               text-transform: uppercase;
                               letter-spacing: 1px;
                               margin-bottom: 4px;
@@ -4719,7 +4812,8 @@ export default function ShopSmartUltimate() {
                             .items-table {
                               width: 100%;
                               border-collapse: collapse;
-                              margin-bottom: 30px;
+                              margin-bottom: 20px;
+                              font-size: 12px;
                             }
                             .items-table thead {
                               background: #f8fafc;
@@ -4727,51 +4821,51 @@ export default function ShopSmartUltimate() {
                               border-bottom: 1px solid #e2e8f0;
                             }
                             .items-table th {
-                              padding: 12px;
+                              padding: 10px;
                               text-align: left;
-                              font-size: 11px;
+                              font-size: 10px;
                               color: #64748b;
                               text-transform: uppercase;
                               letter-spacing: 1px;
                               font-weight: 600;
                             }
                             .items-table td {
-                              padding: 12px;
+                              padding: 10px;
                               border-bottom: 1px solid #f1f5f9;
-                              font-size: 14px;
+                              font-size: 12px;
                             }
                             .totals {
                               border-top: 2px solid #e2e8f0;
-                              padding-top: 20px;
-                              margin-top: 20px;
+                              padding-top: 15px;
+                              margin-top: 15px;
                             }
                             .total-row {
                               display: flex;
                               justify-content: space-between;
-                              margin-bottom: 8px;
-                              font-size: 14px;
+                              margin-bottom: 6px;
+                              font-size: 13px;
                             }
                             .grand-total {
-                              font-size: 18px;
+                              font-size: 16px;
                               font-weight: 700;
                               color: #0f172a;
-                              margin-top: 10px;
-                              padding-top: 10px;
+                              margin-top: 8px;
+                              padding-top: 8px;
                               border-top: 1px solid #e2e8f0;
                             }
                             .payment-info {
                               background: #f8fafc;
-                              padding: 16px;
+                              padding: 12px;
                               border-radius: 6px;
-                              margin: 30px 0;
-                              font-size: 14px;
+                              margin: 20px 0;
+                              font-size: 13px;
                             }
                             .footer {
                               text-align: center;
-                              margin-top: 40px;
-                              padding-top: 20px;
+                              margin-top: 30px;
+                              padding-top: 15px;
                               border-top: 1px solid #e2e8f0;
-                              font-size: 12px;
+                              font-size: 11px;
                               color: #64748b;
                             }
                             .watermark {
@@ -4780,7 +4874,7 @@ export default function ShopSmartUltimate() {
                               top: 50%;
                               left: 50%;
                               transform: translate(-50%, -50%) rotate(-45deg);
-                              font-size: 120px;
+                              font-size: 80px;
                               color: #0f172a;
                               pointer-events: none;
                               z-index: -1;
@@ -4871,7 +4965,7 @@ export default function ShopSmartUltimate() {
                               <div>${
                                 lastOrder.paymentMethod || "Credit Card"
                               }</div>
-                              <div style="margin-top: 8px; font-size: 12px; color: #475569;">
+                              <div style="margin-top: 6px; font-size: 11px; color: #475569;">
                                 Transaction ID: TX-${Math.random()
                                   .toString(36)
                                   .substr(2, 9)
@@ -4880,11 +4974,11 @@ export default function ShopSmartUltimate() {
                             </div>
                             
                             <div class="footer">
-                              <div style="margin-bottom: 10px;">
+                              <div style="margin-bottom: 8px;">
                                 Thank you for your business. This receipt is valid for tax purposes.<br>
                                 Please retain this document for your records.
                               </div>
-                              <div style="color: #94a3b8; font-size: 11px; margin-top: 15px;">
+                              <div style="color: #94a3b8; font-size: 10px; margin-top: 12px;">
                                 Generated by ShopSmart.ai • ${new Date().toLocaleDateString()} • ${
                       window.location.hostname
                     }
@@ -4904,19 +4998,20 @@ export default function ShopSmartUltimate() {
                     `);
                     printWindow.document.close();
                   }}
+                  size={isMobile ? "sm" : "md"}
                 >
-                  Print Receipt
+                  {isMobile ? "Print" : "Print Receipt"}
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        <div className="absolute bottom-8 right-8 flex flex-col gap-3 z-50 pointer-events-none">
+        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 flex flex-col gap-2 sm:gap-3 z-50 pointer-events-none">
           {notifications.map((n) => (
             <div
               key={n.id}
-              className={`px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 pointer-events-auto animate-in slide-in-from-right fade-in duration-300 border-l-4 ${
+              className={`px-4 py-3 sm:px-5 sm:py-4 rounded-xl shadow-2xl flex items-center gap-2 sm:gap-3 pointer-events-auto animate-in slide-in-from-right fade-in duration-300 border-l-4 max-w-[300px] sm:max-w-none ${
                 n.type === "error"
                   ? "bg-gradient-to-r from-rose-50 to-white text-slate-800 border-rose-500"
                   : n.type === "success"
@@ -4927,15 +5022,15 @@ export default function ShopSmartUltimate() {
               }`}
             >
               {n.type === "success" ? (
-                <CheckCircle className="text-emerald-500" size={20} />
+                <CheckCircle className="text-emerald-500" size={isMobile ? 16 : 20} />
               ) : n.type === "error" ? (
-                <AlertTriangle className="text-rose-500" size={20} />
+                <AlertTriangle className="text-rose-500" size={isMobile ? 16 : 20} />
               ) : n.type === "warning" ? (
-                <AlertTriangle className="text-amber-500" size={20} />
+                <AlertTriangle className="text-amber-500" size={isMobile ? 16 : 20} />
               ) : (
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full animate-pulse"></div>
               )}
-              <span className="font-medium text-sm">{n.msg}</span>
+              <span className="font-medium text-xs sm:text-sm truncate">{n.msg}</span>
             </div>
           ))}
         </div>
